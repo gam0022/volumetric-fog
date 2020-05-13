@@ -1,11 +1,11 @@
 import { chromatiq, animateUniforms } from "./index.common";
 
 // for Webpack DefinePlugin
-declare let NEORT: boolean;
+declare const NEORT: boolean;
 
 window.addEventListener(
   "load",
-  (ev) => {
+  () => {
     let finished = false;
 
     const style = document.createElement("style");
@@ -48,7 +48,7 @@ window.addEventListener(
     container.appendChild(button);
     button.innerHTML = "CLICK TO START";
     button.className = "button";
-    button.onclick = () => {
+    button.onclick = (): void => {
       button.remove();
       resolutionMessage.remove();
 
@@ -70,7 +70,7 @@ window.addEventListener(
 
       document.body.requestFullscreen().then(() => {
         setTimeout(() => {
-          chromatiq.onRender = (time, timeDelta) => {
+          chromatiq.onRender = (time): void => {
             animateUniforms(time, false, false);
             if (!finished && time > chromatiq.timeLength + 2.0) {
               document.exitFullscreen();
@@ -81,7 +81,7 @@ window.addEventListener(
           chromatiq.init();
           container.remove();
 
-          const onResize = () => {
+          const onResize = (): void => {
             const scale = parseFloat(resolutionScale.value);
             chromatiq.setSize(
               window.innerWidth * scale,
