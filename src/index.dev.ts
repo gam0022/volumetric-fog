@@ -12,9 +12,117 @@ import Stats from "three/examples/jsm/libs/stats.module";
 
 window.addEventListener(
   "load",
-  (ev) => {
+  () => {
     chromatiq.init();
     chromatiq.play();
+
+    // config
+    const config = {
+      debugCamera: false,
+      debugParams: false,
+      debugDisableReset: false,
+      resolution: "1920x1080",
+      timeMode: "beat",
+      bpm: 140,
+    };
+
+    // HTMLElements
+    const fpsSpan = document.getElementById("fps-span");
+    const stopButton = document.getElementById("stop-button") as HTMLInputElement;
+    const playPauseButton = document.getElementById("play-pause-button") as HTMLInputElement;
+    const frameDecButton = document.getElementById("frame-dec-button") as HTMLInputElement;
+    const frameIncButton = document.getElementById("frame-inc-button") as HTMLInputElement;
+    const timeInput = document.getElementById("time-input") as HTMLInputElement;
+    const beatInput = document.getElementById("beat-input") as HTMLInputElement;
+    const timeBar = document.getElementById("time-bar") as HTMLInputElement;
+    const beatBar = document.getElementById("beat-bar") as HTMLInputElement;
+    const timeLengthInput = document.getElementById("time-length-input") as HTMLInputElement;
+    const beatLengthInput = document.getElementById("beat-length-input") as HTMLInputElement;
+    const timeTickmarks = document.getElementById("time-tickmarks") as HTMLDataListElement;
+    const beatTickmarks = document.getElementById("beat-tickmarks") as HTMLDataListElement;
+
+    // consts
+    const pauseChar = "\uf04c";
+    const playChar = "\uf04b";
+
+    // Common Functions
+    const timeToBeat = (time: number): number => {
+      return (time * config.bpm) / 60;
+    };
+
+    const beatToTime = (beat: number): number => {
+      return (beat / config.bpm) * 60;
+    };
+
+    // OnUpdates
+    const onResolutionCange = (): void => {
+      const ret = config.resolution.match(/(\d+)x(\d+)/);
+      if (ret) {
+        // Fixed Resolution
+        chromatiq.setSize(parseInt(ret[1]), parseInt(ret[2]));
+      } else {
+        // Scaled Resolution
+        const resolutionScale = parseFloat(config.resolution);
+        chromatiq.setSize(
+          window.innerWidth * resolutionScale,
+          window.innerHeight * resolutionScale
+        );
+      }
+
+      chromatiq.needsUpdate = true;
+    };
+
+    const onTimeModeChange = (): void => {
+      const isTimeMode = config.timeMode === "time";
+
+      const timeDisplay = isTimeMode ? "block" : "none";
+      timeInput.style.display = timeDisplay;
+      timeLengthInput.style.display = timeDisplay;
+      timeBar.style.display = timeDisplay;
+
+      const beatDisplay = isTimeMode ? "none" : "block";
+      beatInput.style.display = beatDisplay;
+      beatLengthInput.style.display = beatDisplay;
+      beatBar.style.display = beatDisplay;
+    };
+
+    const onTimeLengthUpdate = (): void => {
+      timeBar.max = timeLengthInput.value;
+
+      // tickmarksの子要素を全て削除します
+      for (let i = timeTickmarks.childNodes.length - 1; i >= 0; i--) {
+        timeTickmarks.removeChild(timeTickmarks.childNodes[i]);
+      }
+
+      // 1秒刻みにラベルを置きます
+      for (let i = 0; i < timeLengthInput.valueAsNumber; i++) {
+        const option = document.createElement("option");
+        option.value = i.toString();
+        option.label = i.toString();
+        timeTickmarks.appendChild(option);
+      }
+    };
+
+    const onBeatLengthUpdate = (): void => {
+      beatBar.max = beatLengthInput.value;
+
+      // tickmarksの子要素を全て削除します
+      for (let i = beatTickmarks.childNodes.length - 1; i >= 0; i--) {
+        beatTickmarks.removeChild(beatTickmarks.childNodes[i]);
+      }
+
+      // 4ビート刻みにラベルを置きます
+      for (let i = 0; i < beatLengthInput.valueAsNumber; i += 4) {
+        const option = document.createElement("option");
+        option.value = i.toString();
+        option.label = i.toString();
+        beatTickmarks.appendChild(option);
+      }
+    };
+
+    // THREE.OrbitControls
+    const camera = new three.PerspectiveCamera(75, 1.0, 1, 1000);
+    const controls = new THREE.OrbitControls(camera, chromatiq.canvas);
 
     // stats.js
     const stats = Stats();
@@ -24,15 +132,6 @@ window.addEventListener(
     // dat.GUI
     const gui = new dat.GUI();
     gui.useLocalStorage = true;
-
-    const config = {
-      debugCamera: false,
-      debugParams: false,
-      debugDisableReset: false,
-      resolution: "1920x1080",
-      timeMode: "beat",
-      bpm: 140,
-    };
 
     const debugFolder = gui.addFolder("debug");
     debugFolder.add(config, "debugCamera").onChange((value) => {
@@ -47,10 +146,10 @@ window.addEventListener(
 
       chromatiq.needsUpdate = true;
     });
-    debugFolder.add(config, "debugParams").onChange((value) => {
+    debugFolder.add(config, "debugParams").onChange(() => {
       chromatiq.needsUpdate = true;
     });
-    debugFolder.add(config, "debugDisableReset").onChange((value) => {
+    debugFolder.add(config, "debugDisableReset").onChange(() => {
       chromatiq.needsUpdate = true;
     });
 
@@ -67,30 +166,28 @@ window.addEventListener(
         "1280x720",
         "512x512",
       ])
-      .onChange((value) => {
+      .onChange(() => {
         onResolutionCange();
       });
-    miscFolder.add(config, "timeMode", ["time", "beat"]).onChange((value) => {
+    miscFolder.add(config, "timeMode", ["time", "beat"]).onChange(() => {
       onTimeModeChange();
     });
-    miscFolder.add(config, "bpm", 50, 300).onChange((value) => {
+    miscFolder.add(config, "bpm", 50, 300).onChange(() => {
       beatLengthInput.valueAsNumber = timeToBeat(timeLengthInput.valueAsNumber);
       onBeatLengthUpdate();
     });
     // NOTE: 使用頻度が低いのでmisc送りに
-    miscFolder
-      .add(chromatiq, "debugFrameNumber", -1, 30, 1)
-      .onChange((value) => {
-        chromatiq.needsUpdate = true;
-      });
+    miscFolder.add(chromatiq, "debugFrameNumber", -1, 30, 1).onChange(() => {
+      chromatiq.needsUpdate = true;
+    });
 
     const saevFunctions = {
-      saveImage: () => {
+      saveImage: (): void => {
         chromatiq.canvas.toBlob((blob) => {
           saveAs(blob, "chromatiq.png");
         });
       },
-      saveImageSequence: () => {
+      saveImageSequence: (): void => {
         if (chromatiq.isPlaying) {
           chromatiq.stopSound();
         }
@@ -101,7 +198,7 @@ window.addEventListener(
 
         const fps = 60;
         let frame = 0;
-        const update = (timestamp: number) => {
+        const update = (): void => {
           const time = frame / fps;
           timeBar.valueAsNumber = time;
           timeInput.valueAsNumber = time;
@@ -124,7 +221,7 @@ window.addEventListener(
 
         requestAnimationFrame(update);
       },
-      saveSound: () => {
+      saveSound: (): void => {
         const sampleLength = Math.ceil(
           chromatiq.audioContext.sampleRate * chromatiq.timeLength
         );
@@ -178,124 +275,14 @@ window.addEventListener(
             chromatiq.needsUpdate = true;
           });
       } else {
-        groupFolder
-          .addColor(chromatiq.uniforms, unifrom.key)
-          .onChange((value) => {
-            chromatiq.needsUpdate = true;
-          });
+        groupFolder.addColor(chromatiq.uniforms, unifrom.key).onChange(() => {
+          chromatiq.needsUpdate = true;
+        });
       }
     });
 
-    // Common Functions
-    const timeToBeat = (time: number) => {
-      return (time * config.bpm) / 60;
-    };
-
-    const beatToTime = (beat: number) => {
-      return (beat / config.bpm) * 60;
-    };
-
-    // consts
-    const pauseChar = "\uf04c";
-    const playChar = "\uf04b";
-
-    // HTMLElements
-    const fpsSpan = document.getElementById("fps-span");
-    const stopButton = <HTMLInputElement>document.getElementById("stop-button");
-    const playPauseButton = <HTMLInputElement>(
-      document.getElementById("play-pause-button")
-    );
-    const frameDecButton = <HTMLInputElement>(
-      document.getElementById("frame-dec-button")
-    );
-    const frameIncButton = <HTMLInputElement>(
-      document.getElementById("frame-inc-button")
-    );
-    const timeInput = <HTMLInputElement>document.getElementById("time-input");
-    const beatInput = <HTMLInputElement>document.getElementById("beat-input");
-    const timeBar = <HTMLInputElement>document.getElementById("time-bar");
-    const beatBar = <HTMLInputElement>document.getElementById("beat-bar");
-    const timeLengthInput = <HTMLInputElement>(
-      document.getElementById("time-length-input")
-    );
-    const beatLengthInput = <HTMLInputElement>(
-      document.getElementById("beat-length-input")
-    );
-    const timeTickmarks = <HTMLDataListElement>(
-      document.getElementById("time-tickmarks")
-    );
-    const beatTickmarks = <HTMLDataListElement>(
-      document.getElementById("beat-tickmarks")
-    );
-
-    // OnUpdates
-    const onResolutionCange = () => {
-      const ret = config.resolution.match(/(\d+)x(\d+)/);
-      if (ret) {
-        // Fixed Resolution
-        chromatiq.setSize(parseInt(ret[1]), parseInt(ret[2]));
-      } else {
-        // Scaled Resolution
-        const resolutionScale = parseFloat(config.resolution);
-        chromatiq.setSize(
-          window.innerWidth * resolutionScale,
-          window.innerHeight * resolutionScale
-        );
-      }
-
-      chromatiq.needsUpdate = true;
-    };
-
-    const onTimeModeChange = () => {
-      const isTimeMode = config.timeMode === "time";
-
-      const timeDisplay = isTimeMode ? "block" : "none";
-      timeInput.style.display = timeDisplay;
-      timeLengthInput.style.display = timeDisplay;
-      timeBar.style.display = timeDisplay;
-
-      const beatDisplay = isTimeMode ? "none" : "block";
-      beatInput.style.display = beatDisplay;
-      beatLengthInput.style.display = beatDisplay;
-      beatBar.style.display = beatDisplay;
-    };
-
-    const onTimeLengthUpdate = () => {
-      timeBar.max = timeLengthInput.value;
-
-      // tickmarksの子要素を全て削除します
-      for (let i = timeTickmarks.childNodes.length - 1; i >= 0; i--) {
-        timeTickmarks.removeChild(timeTickmarks.childNodes[i]);
-      }
-
-      // 1秒刻みにラベルを置きます
-      for (let i = 0; i < timeLengthInput.valueAsNumber; i++) {
-        const option = document.createElement("option");
-        option.value = i.toString();
-        option.label = i.toString();
-        timeTickmarks.appendChild(option);
-      }
-    };
-
-    const onBeatLengthUpdate = () => {
-      beatBar.max = beatLengthInput.value;
-
-      // tickmarksの子要素を全て削除します
-      for (let i = beatTickmarks.childNodes.length - 1; i >= 0; i--) {
-        beatTickmarks.removeChild(beatTickmarks.childNodes[i]);
-      }
-
-      // 4ビート刻みにラベルを置きます
-      for (let i = 0; i < beatLengthInput.valueAsNumber; i += 4) {
-        const option = document.createElement("option");
-        option.value = i.toString();
-        option.label = i.toString();
-        beatTickmarks.appendChild(option);
-      }
-    };
-
     // SessionStorage
-    const saveToSessionStorage = () => {
+    const saveToSessionStorage = (): void => {
       sessionStorage.setItem("guiWidth", gui.width.toString());
       sessionStorage.setItem("debugCamera", config.debugCamera.toString());
       sessionStorage.setItem("debugParams", config.debugParams.toString());
@@ -322,8 +309,8 @@ window.addEventListener(
       }
     };
 
-    const loadFromSessionStorage = () => {
-      const parseBool = (value: string) => {
+    const loadFromSessionStorage = (): void => {
+      const parseBool = (value: string): boolean => {
         return value === "true";
       };
 
@@ -396,7 +383,7 @@ window.addEventListener(
         gui.closed = parseBool(guiClosedStr);
       }
 
-      for (const [key, uniform] of Object.entries(chromatiq.uniforms)) {
+      for (const [key] of Object.entries(chromatiq.uniforms)) {
         const unifromStr = sessionStorage.getItem(key);
         if (unifromStr) {
           const ary = unifromStr.split(",");
@@ -411,12 +398,9 @@ window.addEventListener(
 
     loadFromSessionStorage();
 
-    window.addEventListener("beforeunload", (ev) => {
+    window.addEventListener("beforeunload", () => {
       saveToSessionStorage();
     });
-
-    // THREE.OrbitControls
-    const camera = new three.PerspectiveCamera(75, 1.0, 1, 1000);
 
     if (config.debugCamera) {
       camera.position.set(
@@ -431,7 +415,6 @@ window.addEventListener(
       );
     }
 
-    const controls = new THREE.OrbitControls(camera, chromatiq.canvas);
     controls.target = new three.Vector3(
       chromatiq.uniforms.gCameraTargetX,
       chromatiq.uniforms.gCameraTargetY,
@@ -449,7 +432,7 @@ window.addEventListener(
     const prevCameraTarget: three.Vector3 = controls.target.clone();
 
     // Player
-    chromatiq.onRender = (time, timeDelta) => {
+    chromatiq.onRender = (time, timeDelta): void => {
       timeInput.valueAsNumber = time;
       beatInput.valueAsNumber = timeToBeat(time);
       timeBar.valueAsNumber = time;
@@ -465,13 +448,13 @@ window.addEventListener(
       }
     };
 
-    chromatiq.onPostRender = () => {
+    chromatiq.onPostRender = (): void => {
       stats.end();
       stats.update();
       gui.updateDisplay();
     };
 
-    chromatiq.onUpdate = () => {
+    chromatiq.onUpdate = (): void => {
       if (config.debugCamera) {
         controls.update();
 
@@ -502,7 +485,7 @@ window.addEventListener(
     // UI Events
     window.addEventListener("resize", onResolutionCange);
 
-    stopButton.addEventListener("click", (ev) => {
+    stopButton.addEventListener("click", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -513,7 +496,7 @@ window.addEventListener(
       playPauseButton.value = playChar;
     });
 
-    playPauseButton.addEventListener("click", (ev) => {
+    playPauseButton.addEventListener("click", () => {
       chromatiq.isPlaying = !chromatiq.isPlaying;
       playPauseButton.value = chromatiq.isPlaying ? pauseChar : playChar;
 
@@ -524,7 +507,7 @@ window.addEventListener(
       }
     });
 
-    frameDecButton.addEventListener("click", (ev) => {
+    frameDecButton.addEventListener("click", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -534,7 +517,7 @@ window.addEventListener(
       chromatiq.time -= 1 / 60;
     });
 
-    frameIncButton.addEventListener("click", (ev) => {
+    frameIncButton.addEventListener("click", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -544,7 +527,7 @@ window.addEventListener(
       chromatiq.time += 1 / 60;
     });
 
-    timeInput.addEventListener("input", (ev) => {
+    timeInput.addEventListener("input", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -555,7 +538,7 @@ window.addEventListener(
       chromatiq.needsUpdate = true;
     });
 
-    beatInput.addEventListener("input", (ev) => {
+    beatInput.addEventListener("input", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -566,7 +549,7 @@ window.addEventListener(
       chromatiq.needsUpdate = true;
     });
 
-    timeBar.addEventListener("input", (ev) => {
+    timeBar.addEventListener("input", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -577,7 +560,7 @@ window.addEventListener(
       chromatiq.needsUpdate = true;
     });
 
-    beatBar.addEventListener("input", (ev) => {
+    beatBar.addEventListener("input", () => {
       if (chromatiq.isPlaying) {
         chromatiq.stopSound();
       }
@@ -588,13 +571,13 @@ window.addEventListener(
       chromatiq.needsUpdate = true;
     });
 
-    timeLengthInput.addEventListener("input", (ev) => {
+    timeLengthInput.addEventListener("input", () => {
       beatLengthInput.valueAsNumber = timeToBeat(timeLengthInput.valueAsNumber);
       onTimeLengthUpdate();
       onBeatLengthUpdate();
     });
 
-    beatLengthInput.addEventListener("input", (ev) => {
+    beatLengthInput.addEventListener("input", () => {
       timeLengthInput.valueAsNumber = beatToTime(beatLengthInput.valueAsNumber);
       onTimeLengthUpdate();
       onBeatLengthUpdate();
