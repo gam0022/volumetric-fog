@@ -12,7 +12,7 @@ import {
 } from "./math";
 
 // for Webpack DefinePlugin
-declare let PRODUCTION: boolean;
+declare const PRODUCTION: boolean;
 
 export const chromatiq = new Chromatiq(
   109.714285714, // デモの長さ（秒）
