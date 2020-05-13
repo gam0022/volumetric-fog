@@ -1,7 +1,6 @@
 const float INF = 1e+10;
 const float OFFSET = 0.1;
 
-uniform float gSceneId;   // 0 0 2 scene
 uniform float gSceneEps;  // 0.002 0.00001 0.01
 #define SCENE_MANDEL 0.0
 #define SCENE_UNIVERSE 1.0
@@ -108,23 +107,8 @@ float dStage(vec3 p) {
     return dMandelFast(p, gMandelboxScale, int(gMandelboxRepeat));
 }
 
-uniform float gBallZ;               // 0 -100 100 ball
-uniform float gBallRadius;          // 0 0 0.2
-uniform float gLogoIntensity;       // 0 0 4
-uniform float gBallDistortion;      // 0.0 0 0.1
-uniform float gBallDistortionFreq;  // 30 0 100
-
-float dBall(vec3 p) {
-    return sdSphere(p - vec3(0, 0, gBallZ), gBallRadius) - gBallDistortion * sin(gBallDistortionFreq * p.x + beat) * sin(gBallDistortionFreq * p.y + beat) * sin(gBallDistortionFreq * p.z + beat);
-}
-
 float map(vec3 p) {
     float d = dStage(p);
-
-    if (gBallRadius > 0.0) {
-        d = min(d, dBall(p));
-    }
-
     return d;
 }
 
@@ -200,29 +184,14 @@ void intersectObjects(inout Intersection intersection, inout Ray ray) {
         intersection.position = p;
         intersection.normal = calcNormal(p, map, gSceneEps);
 
-        if (gBallRadius > 0.0 && dBall(p) < eps) {
-            intersection.baseColor = vec3(0.0);
-            intersection.roughness = 0.0;
-            intersection.metallic = 1.0;
-            intersection.emission = vec3(0.0);
-            intersection.reflectance = 1.0;
+        intersection.baseColor = vec3(gBaseColor);
+        intersection.roughness = gRoughness;
+        intersection.metallic = gMetallic;
 
-            if (gLogoIntensity > 0.0) {
-                float b = beat - 160.0;
-                float r = remapFrom(b, 0.0, 7.0);
-                r = r - 1.0;
-                intersection.emission = vec3(gLogoIntensity) * revisionLogo(intersection.normal.xy * 0.6, 8.0 * r);
-            }
-        } else {
-            intersection.baseColor = vec3(gBaseColor);
-            intersection.roughness = gRoughness;
-            intersection.metallic = gMetallic;
-
-            float edge = calcEdge(p);
-            float hue = gEmissiveHue + gEmissiveHueShiftZ * p.z + gEmissiveHueShiftXY * length(p.xy) + gEmissiveHueShiftBeat * beat;
-            intersection.emission = gEmissiveIntensity * hsv2rgb(vec3(hue, 0.8, 1.0)) * pow(edge, gEdgePower) * saturate(cos(beat * gEmissiveSpeed * TAU - mod(0.5 * intersection.position.z, TAU)));
-            intersection.reflectance = 0.0;
-        }
+        float edge = calcEdge(p);
+        float hue = gEmissiveHue + gEmissiveHueShiftZ * p.z + gEmissiveHueShiftXY * length(p.xy) + gEmissiveHueShiftBeat * beat;
+        intersection.emission = gEmissiveIntensity * hsv2rgb(vec3(hue, 0.8, 1.0)) * pow(edge, gEdgePower) * saturate(cos(beat * gEmissiveSpeed * TAU - mod(0.5 * intersection.position.z, TAU)));
+        intersection.reflectance = 0.0;
     }
 }
 
@@ -317,11 +286,6 @@ vec2 distortion(vec2 uv) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    if (gSceneId != SCENE_MANDEL) {
-        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-        return;
-    }
-
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
     uv = distortion(uv);
 
