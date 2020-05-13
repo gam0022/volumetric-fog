@@ -1,15 +1,26 @@
 // https://www.russellgood.com/how-to-convert-audiobuffer-to-audio-file/
 // Convert an AudioBuffer to a Blob using WAVE representation
-export function bufferToWave(abuffer: AudioBuffer, len: number) {
-  let numOfChan = abuffer.numberOfChannels,
+export function bufferToWave(abuffer: AudioBuffer, len: number): Blob {
+  const numOfChan = abuffer.numberOfChannels,
     length = Math.floor(len * numOfChan * 2 + 44),
     buffer = new ArrayBuffer(length),
     view = new DataView(buffer),
-    channels = [],
-    i,
+    channels = [];
+
+  let i,
     sample,
     offset = 0,
     pos = 0;
+
+  function setUint16(data: number): void {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  }
+
+  function setUint32(data: number): void {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  }
 
   // write WAVE header
   setUint32(0x46464952); // "RIFF"
@@ -45,14 +56,4 @@ export function bufferToWave(abuffer: AudioBuffer, len: number) {
 
   // create Blob
   return new Blob([buffer], { type: "audio/wav" });
-
-  function setUint16(data: number) {
-    view.setUint16(pos, data, true);
-    pos += 2;
-  }
-
-  function setUint32(data: number) {
-    view.setUint32(pos, data, true);
-    pos += 4;
-  }
 }
