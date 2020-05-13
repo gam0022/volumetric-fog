@@ -156,17 +156,17 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
         chromatiq.uniforms[uniform.key] = uniform.initValue;
     });
 
-    new Timeline(beat).then(8, t => {
+    new Timeline(beat).then(8 * 6, t => {
         chromatiq.uniforms.gTonemapExposure = 1;
 
-        camera = new Vector3(0, 0.2, -13.0 - t * 0.1).add(Vector3.fbm(t).scale(0.01));
-        target = new Vector3(0, 0, 0);
+        camera = new Vector3(0.042533747248285514, 3.580181344478862, -3.2355081018643443).add(Vector3.fbm(t).scale(0.01));
+        target = new Vector3(0.7576763789243015, 3.4515422110479044, -0.21633410393024527);
 
-        chromatiq.uniforms.gMandelboxScale = 1.8;
-        chromatiq.uniforms.gCameraLightIntensity = 0.4;
+        chromatiq.uniforms.gCameraFov = 37.88049605411499;
+        chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
+        chromatiq.uniforms.gCameraLightIntensity = 0;
         chromatiq.uniforms.gEmissiveIntensity = 0;
-        chromatiq.uniforms.gSceneEps = 0.003;
-        chromatiq.uniforms.gBallRadius = 0;
+        chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
     }).over(t => {
         // デモ終了後
         chromatiq.uniforms.gBlend = -1;
