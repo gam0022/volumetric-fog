@@ -112,7 +112,7 @@ class Timeline {
     this.done = false;
   }
 
-  then(length: number, event: (offset: number) => void) {
+  then(length: number, event: (offset: number) => void): Timeline {
     if (this.done || this.input < this.begin) {
       return this;
     }
@@ -127,7 +127,7 @@ class Timeline {
     return this;
   }
 
-  over(event: (offset: number) => void) {
+  over(event: (offset: number) => void): Timeline {
     if (this.done) {
       return this;
     }
@@ -138,26 +138,16 @@ class Timeline {
   }
 }
 
-const Planets = {
-  MERCURY: 0 as const,
-  MIX_A: 1 as const,
-  KANETA: 2 as const,
-  FMSCAT: 3 as const,
-  MIX_B: 4 as const,
-  EARTH: 5 as const,
-};
-
 export const animateUniforms = (
   time: number,
   debugCamera: boolean,
   debugDisableReset: boolean
-) => {
+): void => {
   const bpm = 140;
   const beat = (time * bpm) / 60;
 
   let camera = new Vector3(0, 0, 10);
   let target = new Vector3(0, 0, 0);
-  const ball = new Vector3(0, 0, -10);
 
   // reset values
   chromatiq.uniformArray.forEach((uniform) => {
@@ -179,6 +169,7 @@ export const animateUniforms = (
         3.580181344478862,
         -3.2355081018643443
       ).add(Vector3.fbm(t).scale(0.01));
+
       target = new Vector3(
         0.7576763789243015,
         3.4515422110479044,
@@ -191,7 +182,7 @@ export const animateUniforms = (
       chromatiq.uniforms.gEmissiveIntensity = 0;
       chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
     })
-    .over((t) => {
+    .over(() => {
       // デモ終了後
       chromatiq.uniforms.gBlend = -1;
     });
