@@ -1,15 +1,5 @@
 import { Chromatiq } from "./chromatiq";
-import {
-  mix,
-  clamp,
-  saturate,
-  Vector3,
-  remap,
-  remapFrom,
-  remapTo,
-  easeInOutCubic,
-  easeInOutCubicVelocity,
-} from "./math";
+import { mix, clamp, saturate, Vector3, remap, remapFrom, remapTo, easeInOutCubic, easeInOutCubicVelocity } from "./math";
 
 // for Webpack DefinePlugin
 declare const PRODUCTION: boolean;
@@ -138,11 +128,7 @@ class Timeline {
   }
 }
 
-export const animateUniforms = (
-  time: number,
-  debugCamera: boolean,
-  debugDisableReset: boolean
-): void => {
+export const animateUniforms = (time: number, debugCamera: boolean, debugDisableReset: boolean): void => {
   const bpm = 140;
   const beat = (time * bpm) / 60;
 
@@ -164,17 +150,9 @@ export const animateUniforms = (
     .then(8 * 6, (t) => {
       chromatiq.uniforms.gTonemapExposure = 1;
 
-      camera = new Vector3(
-        0.042533747248285514,
-        3.580181344478862,
-        -3.2355081018643443
-      ).add(Vector3.fbm(t).scale(0.01));
+      camera = new Vector3(0.042533747248285514, 3.580181344478862, -3.2355081018643443).add(Vector3.fbm(t).scale(0.01));
 
-      target = new Vector3(
-        0.7576763789243015,
-        3.4515422110479044,
-        -0.21633410393024527
-      );
+      target = new Vector3(0.7576763789243015, 3.4515422110479044, -0.21633410393024527);
 
       chromatiq.uniforms.gCameraFov = 37.88049605411499;
       chromatiq.uniforms.gMandelboxScale = 2.88621239103946;

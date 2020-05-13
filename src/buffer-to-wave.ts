@@ -40,8 +40,7 @@ export function bufferToWave(abuffer: AudioBuffer, len: number): Blob {
   setUint32(length - pos - 4); // chunk length
 
   // write interleaved data
-  for (i = 0; i < abuffer.numberOfChannels; i++)
-    channels.push(abuffer.getChannelData(i));
+  for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
 
   while (pos < length) {
     for (i = 0; i < numOfChan; i++) {

@@ -13,9 +13,7 @@ window.addEventListener(
     document.head.appendChild(style);
 
     document.addEventListener("fullscreenchange", () => {
-      document.body.style.cursor = window.document.fullscreenElement
-        ? "none"
-        : "auto";
+      document.body.style.cursor = window.document.fullscreenElement ? "none" : "auto";
     });
 
     const container = document.createElement("div");
@@ -54,14 +52,12 @@ window.addEventListener(
 
       // loading animation
       const loading = document.createElement("p");
-      loading.innerHTML =
-        'LOADING <div class="lds-facebook"><div></div><div></div><div></div></div>';
+      loading.innerHTML = 'LOADING <div class="lds-facebook"><div></div><div></div><div></div></div>';
       container.appendChild(loading);
 
       const loadingMessage = document.createElement("p");
       if (NEORT) {
-        loadingMessage.innerHTML =
-          "It takes about one minute. Please wait.<br> 読み込みに1分程度かかります。しばらくお待ち下さい。";
+        loadingMessage.innerHTML = "It takes about one minute. Please wait.<br> 読み込みに1分程度かかります。しばらくお待ち下さい。";
       } else {
         loadingMessage.innerHTML = "It takes about one minute. Please wait.";
       }
@@ -83,10 +79,7 @@ window.addEventListener(
 
           const onResize = (): void => {
             const scale = parseFloat(resolutionScale.value);
-            chromatiq.setSize(
-              window.innerWidth * scale,
-              window.innerHeight * scale
-            );
+            chromatiq.setSize(window.innerWidth * scale, window.innerHeight * scale);
           };
 
           window.addEventListener("resize", onResize);

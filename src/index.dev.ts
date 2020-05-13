@@ -63,10 +63,7 @@ window.addEventListener(
       } else {
         // Scaled Resolution
         const resolutionScale = parseFloat(config.resolution);
-        chromatiq.setSize(
-          window.innerWidth * resolutionScale,
-          window.innerHeight * resolutionScale
-        );
+        chromatiq.setSize(window.innerWidth * resolutionScale, window.innerHeight * resolutionScale);
       }
 
       chromatiq.needsUpdate = true;
@@ -154,21 +151,9 @@ window.addEventListener(
     });
 
     const miscFolder = gui.addFolder("misc");
-    miscFolder
-      .add(config, "resolution", [
-        "0.5",
-        "0.75",
-        "1.0",
-        "3840x2160",
-        "2560x1440",
-        "1920x1080",
-        "1600x900",
-        "1280x720",
-        "512x512",
-      ])
-      .onChange(() => {
-        onResolutionCange();
-      });
+    miscFolder.add(config, "resolution", ["0.5", "0.75", "1.0", "3840x2160", "2560x1440", "1920x1080", "1600x900", "1280x720", "512x512"]).onChange(() => {
+      onResolutionCange();
+    });
     miscFolder.add(config, "timeMode", ["time", "beat"]).onChange(() => {
       onTimeModeChange();
     });
@@ -222,13 +207,8 @@ window.addEventListener(
         requestAnimationFrame(update);
       },
       saveSound: (): void => {
-        const sampleLength = Math.ceil(
-          chromatiq.audioContext.sampleRate * chromatiq.timeLength
-        );
-        const waveBlob = bufferToWave(
-          chromatiq.audioSource.buffer,
-          sampleLength
-        );
+        const sampleLength = Math.ceil(chromatiq.audioContext.sampleRate * chromatiq.timeLength);
+        const waveBlob = bufferToWave(chromatiq.audioSource.buffer, sampleLength);
         saveAs(waveBlob, "chromatiq.wav");
       },
     };
@@ -246,34 +226,32 @@ window.addEventListener(
       }
 
       if (typeof unifrom.initValue === "number") {
-        groupFolder
-          .add(chromatiq.uniforms, unifrom.key, unifrom.min, unifrom.max)
-          .onChange((value) => {
-            if (config.debugCamera) {
-              switch (unifrom.key) {
-                case "gCameraEyeX":
-                  camera.position.x = value;
-                  break;
-                case "gCameraEyeY":
-                  camera.position.y = value;
-                  break;
-                case "gCameraEyeZ":
-                  camera.position.z = value;
-                  break;
-                case "gCameraTargetX":
-                  controls.target.x = value;
-                  break;
-                case "gCameraTargetY":
-                  controls.target.y = value;
-                  break;
-                case "gCameraTargetZ":
-                  controls.target.z = value;
-                  break;
-              }
+        groupFolder.add(chromatiq.uniforms, unifrom.key, unifrom.min, unifrom.max).onChange((value) => {
+          if (config.debugCamera) {
+            switch (unifrom.key) {
+              case "gCameraEyeX":
+                camera.position.x = value;
+                break;
+              case "gCameraEyeY":
+                camera.position.y = value;
+                break;
+              case "gCameraEyeZ":
+                camera.position.z = value;
+                break;
+              case "gCameraTargetX":
+                controls.target.x = value;
+                break;
+              case "gCameraTargetY":
+                controls.target.y = value;
+                break;
+              case "gCameraTargetZ":
+                controls.target.z = value;
+                break;
             }
+          }
 
-            chromatiq.needsUpdate = true;
-          });
+          chromatiq.needsUpdate = true;
+        });
       } else {
         groupFolder.addColor(chromatiq.uniforms, unifrom.key).onChange(() => {
           chromatiq.needsUpdate = true;
@@ -286,17 +264,11 @@ window.addEventListener(
       sessionStorage.setItem("guiWidth", gui.width.toString());
       sessionStorage.setItem("debugCamera", config.debugCamera.toString());
       sessionStorage.setItem("debugParams", config.debugParams.toString());
-      sessionStorage.setItem(
-        "debugDisableReset",
-        config.debugDisableReset.toString()
-      );
+      sessionStorage.setItem("debugDisableReset", config.debugDisableReset.toString());
       sessionStorage.setItem("resolution", config.resolution);
       sessionStorage.setItem("timeMode", config.timeMode);
       sessionStorage.setItem("bpm", config.bpm.toString());
-      sessionStorage.setItem(
-        "debugFrameNumber",
-        chromatiq.debugFrameNumber.toString()
-      );
+      sessionStorage.setItem("debugFrameNumber", chromatiq.debugFrameNumber.toString());
 
       sessionStorage.setItem("time", chromatiq.time.toString());
       sessionStorage.setItem("isPlaying", chromatiq.isPlaying.toString());
@@ -403,23 +375,11 @@ window.addEventListener(
     });
 
     if (config.debugCamera) {
-      camera.position.set(
-        chromatiq.uniforms.gCameraEyeX,
-        chromatiq.uniforms.gCameraEyeY,
-        chromatiq.uniforms.gCameraEyeZ
-      );
-      camera.lookAt(
-        chromatiq.uniforms.gCameraTargetX,
-        chromatiq.uniforms.gCameraTargetY,
-        chromatiq.uniforms.gCameraTargetZ
-      );
+      camera.position.set(chromatiq.uniforms.gCameraEyeX, chromatiq.uniforms.gCameraEyeY, chromatiq.uniforms.gCameraEyeZ);
+      camera.lookAt(chromatiq.uniforms.gCameraTargetX, chromatiq.uniforms.gCameraTargetY, chromatiq.uniforms.gCameraTargetZ);
     }
 
-    controls.target = new three.Vector3(
-      chromatiq.uniforms.gCameraTargetX,
-      chromatiq.uniforms.gCameraTargetY,
-      chromatiq.uniforms.gCameraTargetZ
-    );
+    controls.target = new three.Vector3(chromatiq.uniforms.gCameraTargetX, chromatiq.uniforms.gCameraTargetY, chromatiq.uniforms.gCameraTargetZ);
     controls.zoomSpeed = 3.0;
     controls.screenSpacePanning = true;
     controls.mouseButtons = {
@@ -458,10 +418,7 @@ window.addEventListener(
       if (config.debugCamera) {
         controls.update();
 
-        if (
-          !camera.position.equals(prevCameraPosotion) ||
-          !controls.target.equals(prevCameraTarget)
-        ) {
+        if (!camera.position.equals(prevCameraPosotion) || !controls.target.equals(prevCameraTarget)) {
           chromatiq.uniforms.gCameraEyeX = camera.position.x;
           chromatiq.uniforms.gCameraEyeY = camera.position.y;
           chromatiq.uniforms.gCameraEyeZ = camera.position.z;

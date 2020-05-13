@@ -178,14 +178,7 @@ export class Chromatiq {
         const offset = 0,
           stride = count * Float32Array.BYTES_PER_ELEMENT;
         gl.enableVertexAttribArray(vert2dId);
-        gl.vertexAttribPointer(
-          vert2dId,
-          count,
-          elem,
-          normalize,
-          stride,
-          offset
-        );
+        gl.vertexAttribPointer(vert2dId, count, elem, normalize, stride, offset);
         gl.bindVertexArray(null);
         // NOTE: these unbound buffers is not required; works fine if unbound
         // gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -195,9 +188,7 @@ export class Chromatiq {
       const imagePasses: Pass[] = [];
       const textTexture = createTextTexture(gl);
 
-      const imageCommonHeaderShaderLineCount = imageCommonHeaderShader.split(
-        "\n"
-      ).length;
+      const imageCommonHeaderShaderLineCount = imageCommonHeaderShader.split("\n").length;
 
       const loadShader = (src: string, type: number): WebGLShader => {
         const shader = gl.createShader(type);
@@ -213,19 +204,14 @@ export class Chromatiq {
               console.log(src, log);
             } else {
               // NOTE: CommonHeaderを考慮してエラーの行番号を変換します
-              const log = gl
-                .getShaderInfoLog(shader)
-                .replace(
-                  /(\d+):(\d+)/g,
-                  (match: string, p1: string, p2: string) => {
-                    const line = parseInt(p2);
-                    if (line <= imageCommonHeaderShaderLineCount) {
-                      return `${p1}:${line} (common header)`;
-                    } else {
-                      return `${p1}:${line - imageCommonHeaderShaderLineCount}`;
-                    }
-                  }
-                );
+              const log = gl.getShaderInfoLog(shader).replace(/(\d+):(\d+)/g, (match: string, p1: string, p2: string) => {
+                const line = parseInt(p2);
+                if (line <= imageCommonHeaderShaderLineCount) {
+                  return `${p1}:${line} (common header)`;
+                } else {
+                  return `${p1}:${line - imageCommonHeaderShaderLineCount}`;
+                }
+              });
               console.log(src, log);
             }
           }
@@ -234,10 +220,7 @@ export class Chromatiq {
       };
 
       const loadProgram = (fragmentShader: string): WebGLProgram => {
-        const shaders = [
-          loadShader(vertexShader, gl.VERTEX_SHADER),
-          loadShader(fragmentShader, gl.FRAGMENT_SHADER),
-        ];
+        const shaders = [loadShader(vertexShader, gl.VERTEX_SHADER), loadShader(fragmentShader, gl.FRAGMENT_SHADER)];
         const program = gl.createProgram();
         shaders.forEach((shader) => gl.attachShader(program, shader));
         gl.linkProgram(program);
@@ -247,9 +230,7 @@ export class Chromatiq {
         return program;
       };
 
-      const createLocations = (
-        pass: Pass
-      ): { [index: string]: WebGLUniformLocation } => {
+      const createLocations = (pass: Pass): { [index: string]: WebGLUniformLocation } => {
         const locations: { [index: string]: WebGLUniformLocation } = {};
         Object.keys(pass.uniforms).forEach((key) => {
           locations[key] = gl.getUniformLocation(pass.program, key);
@@ -284,30 +265,14 @@ export class Chromatiq {
         // フレームバッファ用テクスチャを生成します
         pass.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, pass.texture);
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          format,
-          width,
-          height,
-          0,
-          gl.RGBA,
-          type,
-          null
-        );
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, gl.RGBA, type, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
         // フレームバッファにテクスチャを関連付けます
-        gl.framebufferTexture2D(
-          gl.FRAMEBUFFER,
-          gl.COLOR_ATTACHMENT0,
-          gl.TEXTURE_2D,
-          pass.texture,
-          0
-        );
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pass.texture, 0);
 
         // 各種オブジェクトのバインドを解除します
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -315,12 +280,7 @@ export class Chromatiq {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       };
 
-      const initPass = (
-        program: WebGLProgram,
-        index: number,
-        type: PassType,
-        scale: number
-      ): Pass => {
+      const initPass = (program: WebGLProgram, index: number, type: PassType, scale: number): Pass => {
         setupVAO(program);
         const pass = new Pass();
         pass.program = program;
@@ -345,8 +305,7 @@ export class Chromatiq {
         };
 
         if (type === PassType.BloomUpsample) {
-          const bloomDonwsampleEndIndex =
-            bloomPassBeginIndex + bloomDonwsampleIterations;
+          const bloomDonwsampleEndIndex = bloomPassBeginIndex + bloomDonwsampleIterations;
           const upCount = index - bloomDonwsampleEndIndex;
           pass.uniforms.iPairBloomDown = {
             type: "t",
@@ -395,20 +354,12 @@ export class Chromatiq {
 
             if (key === "iTextTexture") {
               gl.bindTexture(gl.TEXTURE_2D, textTexture);
-            } else if (
-              !PRODUCTION &&
-              this.debugFrameNumber >= 0 &&
-              key === "iPrevPass" &&
-              pass.type === PassType.FinalImage
-            ) {
+            } else if (!PRODUCTION && this.debugFrameNumber >= 0 && key === "iPrevPass" && pass.type === PassType.FinalImage) {
               // NOTE: 特定パスを強制表示するためのデバッグ用の処理です
               if (this.debugFrameNumber == 30) {
                 gl.bindTexture(gl.TEXTURE_2D, textTexture);
               } else {
-                const i = Math.min(
-                  Math.floor(this.debugFrameNumber),
-                  imagePasses.length - 1
-                );
+                const i = Math.min(Math.floor(this.debugFrameNumber), imagePasses.length - 1);
                 gl.bindTexture(gl.TEXTURE_2D, imagePasses[i].texture);
               }
             } else {
@@ -426,12 +377,7 @@ export class Chromatiq {
         // NOTE: binding vert and index buffer is not required
         gl.bindVertexArray(vertexArray);
         const indexOffset = 0 * index[0].length;
-        gl.drawElements(
-          gl.TRIANGLES,
-          indexData.length,
-          gl.UNSIGNED_SHORT,
-          indexOffset
-        );
+        gl.drawElements(gl.TRIANGLES, indexData.length, gl.UNSIGNED_SHORT, indexOffset);
         const error = gl.getError();
         if (error !== gl.NO_ERROR) console.log(error);
         gl.bindVertexArray(null);
@@ -448,11 +394,7 @@ export class Chromatiq {
         imagePasses.forEach((pass) => {
           gl.deleteFramebuffer(pass.frameBuffer);
           gl.deleteTexture(pass.texture);
-          pass.uniforms.iResolution.value = [
-            width * pass.scale,
-            height * pass.scale,
-            0,
-          ];
+          pass.uniforms.iResolution.value = [width * pass.scale, height * pass.scale, 0];
           setupFrameBuffer(pass);
         });
       };
@@ -466,10 +408,7 @@ export class Chromatiq {
           this.audioSource = newAudioSource;
         }
 
-        this.audioSource.start(
-          this.audioContext.currentTime,
-          this.time % this.timeLength
-        );
+        this.audioSource.start(this.audioContext.currentTime, this.time % this.timeLength);
       };
 
       if (!PRODUCTION) {
@@ -480,11 +419,7 @@ export class Chromatiq {
 
       const initSound = (): void => {
         const sampleLength = Math.ceil(audio.sampleRate * timeLength);
-        const audioBuffer = audio.createBuffer(
-          2,
-          sampleLength,
-          audio.sampleRate
-        );
+        const audioBuffer = audio.createBuffer(2, sampleLength, audio.sampleRate);
         const samples = SOUND_WIDTH * SOUND_HEIGHT;
         const numBlocks = sampleLength / samples;
 
@@ -504,30 +439,19 @@ export class Chromatiq {
         const soundPass = initPass(soundProgram, 0, PassType.Sound, 1);
         for (let i = 0; i < numBlocks; i++) {
           // update uniform & render
-          soundPass.uniforms.iBlockOffset.value =
-            (i * samples) / audio.sampleRate;
+          soundPass.uniforms.iBlockOffset.value = (i * samples) / audio.sampleRate;
           renderPass(soundPass);
 
           // read pixels
           const pixels = new Uint8Array(SOUND_WIDTH * SOUND_HEIGHT * 4);
-          gl.readPixels(
-            0,
-            0,
-            SOUND_WIDTH,
-            SOUND_HEIGHT,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            pixels
-          );
+          gl.readPixels(0, 0, SOUND_WIDTH, SOUND_HEIGHT, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
           // convert pixels to samples
           const outputDataL = audioBuffer.getChannelData(0);
           const outputDataR = audioBuffer.getChannelData(1);
           for (let j = 0; j < samples; j++) {
-            outputDataL[i * samples + j] =
-              ((pixels[j * 4 + 0] + 256 * pixels[j * 4 + 1]) / 65535) * 2 - 1;
-            outputDataR[i * samples + j] =
-              ((pixels[j * 4 + 2] + 256 * pixels[j * 4 + 3]) / 65535) * 2 - 1;
+            outputDataL[i * samples + j] = ((pixels[j * 4 + 0] + 256 * pixels[j * 4 + 1]) / 65535) * 2 - 1;
+            outputDataR[i * samples + j] = ((pixels[j * 4 + 2] + 256 * pixels[j * 4 + 3]) / 65535) * 2 - 1;
           }
         }
 
@@ -557,11 +481,7 @@ export class Chromatiq {
                   pass.uniforms[key].value = value;
                 } else {
                   // NOTE: for dat.GUI addColor
-                  pass.uniforms[key].value = [
-                    value[0] / 255,
-                    value[1] / 255,
-                    value[2] / 255,
-                  ];
+                  pass.uniforms[key].value = [value[0] / 255, value[1] / 255, value[2] / 255];
                 }
               }
             }
@@ -593,19 +513,13 @@ export class Chromatiq {
 
               // get min / max for Debug dat.GUI
               if (!PRODUCTION) {
-                uniform.min =
-                  result[6] !== undefined ? parseFloat(result[6]) : 0;
-                uniform.max =
-                  result[7] !== undefined ? parseFloat(result[7]) : 1;
+                uniform.min = result[6] !== undefined ? parseFloat(result[6]) : 0;
+                uniform.max = result[7] !== undefined ? parseFloat(result[7]) : 1;
               }
             } else {
               uniform = {
                 key: result[2],
-                initValue: [
-                  parseFloat(result[4]),
-                  parseFloat(result[6]),
-                  parseFloat(result[7]),
-                ],
+                initValue: [parseFloat(result[4]), parseFloat(result[6]), parseFloat(result[7])],
               };
             }
 
@@ -640,51 +554,23 @@ export class Chromatiq {
       let passIndex = 0;
       imageShaders.forEach((shader, i, ary) => {
         if (i === bloomPassBeginIndex) {
-          imagePasses.push(
-            initPass(
-              loadProgram(imageCommonHeaderShader + bloomPrefilterShader),
-              passIndex,
-              PassType.Bloom,
-              1
-            )
-          );
+          imagePasses.push(initPass(loadProgram(imageCommonHeaderShader + bloomPrefilterShader), passIndex, PassType.Bloom, 1));
           passIndex++;
 
           let scale = 1;
           for (let j = 0; j < bloomDonwsampleIterations; j++) {
             scale *= 0.5;
-            imagePasses.push(
-              initPass(
-                loadProgram(imageCommonHeaderShader + bloomDownsampleShader),
-                passIndex,
-                PassType.Bloom,
-                scale
-              )
-            );
+            imagePasses.push(initPass(loadProgram(imageCommonHeaderShader + bloomDownsampleShader), passIndex, PassType.Bloom, scale));
             passIndex++;
           }
 
           for (let j = 0; j < bloomDonwsampleIterations - 1; j++) {
             scale *= 2;
-            imagePasses.push(
-              initPass(
-                loadProgram(imageCommonHeaderShader + bloomUpsampleShader),
-                passIndex,
-                PassType.BloomUpsample,
-                scale
-              )
-            );
+            imagePasses.push(initPass(loadProgram(imageCommonHeaderShader + bloomUpsampleShader), passIndex, PassType.BloomUpsample, scale));
             passIndex++;
           }
 
-          imagePasses.push(
-            initPass(
-              loadProgram(imageCommonHeaderShader + bloomFinalShader),
-              passIndex,
-              PassType.BloomUpsample,
-              1
-            )
-          );
+          imagePasses.push(initPass(loadProgram(imageCommonHeaderShader + bloomFinalShader), passIndex, PassType.BloomUpsample, 1));
           passIndex++;
         }
 
@@ -694,14 +580,7 @@ export class Chromatiq {
           startTime = performance.now();
         }
 
-        imagePasses.push(
-          initPass(
-            loadProgram(imageCommonHeaderShader + shader),
-            passIndex,
-            i < ary.length - 1 ? PassType.Image : PassType.FinalImage,
-            1
-          )
-        );
+        imagePasses.push(initPass(loadProgram(imageCommonHeaderShader + shader), passIndex, i < ary.length - 1 ? PassType.Image : PassType.FinalImage, 1));
 
         if (!PRODUCTION) {
           endTime = performance.now();
