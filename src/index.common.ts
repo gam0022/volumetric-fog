@@ -12,15 +12,12 @@ export const chromatiq = new Chromatiq(
     require("./shaders/common-header.glsl").default,
     [
         require("./shaders/raymarching-mandel.glsl").default,
-        require("./shaders/raymarching-universe.glsl").default,
-        require("./shaders/raymarching-universe-kaneta-fms-cat.glsl").default,
-        require("./shaders/text-resimulated.glsl").default,
         require("./shaders/post-effect.glsl").default,
         // require("./shaders/effects/debug-circle.glsl").default,
     ],
 
     // Bloom
-    4,
+    1,
     5,
     require("./shaders/build-in/bloom-prefilter.glsl").default,
     require("./shaders/build-in/bloom-downsample.glsl").default,
@@ -451,105 +448,6 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
         chromatiq.uniforms.gEmissiveHueShiftBeat = 0;
         chromatiq.uniforms.gEmissiveHueShiftZ = remapFrom(t, 4, 16);
         chromatiq.uniforms.gEmissiveHueShiftXY = remapFrom(t, 4, 16);
-    }).then(32, t => {
-        // 惑星でグリーティング
-        chromatiq.uniforms.gSceneId = 1;
-        chromatiq.uniforms.gSceneEps = 0.002;
-        chromatiq.uniforms.gTonemapExposure = 1;
-
-        target = new Vector3(0, 0, 0);
-        let scale = Math.exp(-0.01 * t);
-        chromatiq.uniforms.gCameraFov = 20 * Math.exp(-0.005 * (t % 4));
-
-        if (t < 8) {
-            chromatiq.uniforms.gPlanetsId = Planets.MERCURY;
-            camera = new Vector3(-1.38, -0.8550687112306142, 47.4);
-            chromatiq.uniforms.gCameraFov = 20 * Math.exp(-0.005 * t);
-        } else if (t < 12) {
-            chromatiq.uniforms.gPlanetsId = Planets.MERCURY;
-            camera = new Vector3(5, 1, 30);
-            chromatiq.uniforms.gCameraFov = mix(13, 20 * Math.exp(-0.005 * t), Math.exp(-20 * (t - 8)));
-            // chromatiq.uniforms.gShockDistortion = 0.3 * Math.exp(-20 * (t - 10));
-        } else if (t < 20) {
-            chromatiq.uniforms.gPlanetsId = Planets.MIX_A;
-            const l = remapFrom(t, 13, 20);
-            const e = easeInOutCubic(l);
-            target = new Vector3(0, 0, remapTo(e, 0, 400));
-            camera = target.add(new Vector3(5, 5, 40).scale(remapTo(e, 1, 0.8)));
-            chromatiq.uniforms.gShockDistortion = 1.5 * Math.exp(-10 * (t - 12));
-            scale = 1;
-            // chromatiq.uniforms.gCameraFov = remapTo(easeInOutCubic(easeInOutCubicVelocity(l)), 10, 40);
-            chromatiq.uniforms.gCameraFov = mix(40 * Math.exp(-0.5 * e), 13, Math.exp(-0.1 * (t - 12)));
-        } else if (t < 24) {
-            chromatiq.uniforms.gPlanetsId = Planets.KANETA;
-            camera = new Vector3(15, 1, 20);
-        } else if (t < 28) {
-            chromatiq.uniforms.gPlanetsId = Planets.FMSCAT;
-            camera = new Vector3(-15, 3, 20);
-
-            if (t >= 27) {
-                chromatiq.uniforms.gGlitchIntensity = 0.05 * Math.exp(-5 * (t - 27));
-            }
-        } else {
-            chromatiq.uniforms.gPlanetsId = Planets.MIX_B;
-            target = new Vector3(1, 0, 0);
-            camera = new Vector3(remapTo(1 - Math.exp(-20 * (t - 28)), 10, -15), -3, 50);
-            chromatiq.uniforms.gShockDistortion = 0.3 * Math.exp(-20 * (t - 28));
-        }
-
-        camera = camera.scale(scale).add(Vector3.fbm(t).scale(0.01));
-
-        chromatiq.uniforms.gBallRadius = 0;
-        chromatiq.uniforms.gBloomIntensity = 5;
-        chromatiq.uniforms.gBloomThreshold = 0.7;
-        chromatiq.uniforms.gBlend = remapTo(easeInOutCubic(remapFrom(t, 0, 16)), 1, 0);
-    }).then(32, t => {
-        // クレジット
-        chromatiq.uniforms.gSceneId = 1;
-        chromatiq.uniforms.gPlanetsId = Planets.EARTH;
-        chromatiq.uniforms.gSceneEps = 0.005;
-        chromatiq.uniforms.gTonemapExposure = 1;
-
-        camera = new Vector3(-47.38, -0.85, 12.4).scale(Math.exp(-0.01 * t)).add(Vector3.fbm(t).scale(0.01));
-        target = new Vector3(0, 0, 0);
-        ball.z = 0;
-        chromatiq.uniforms.gCameraFov = 30 * Math.exp(-0.01 * t);
-
-        if (t >= 0) {
-            chromatiq.uniforms.gXSfhitGlitch = 0.05 * Math.exp(-1.55 * t);
-        }
-
-        if (t >= 7) {
-            chromatiq.uniforms.gGlitchIntensity = 0.05 * Math.exp(-5 * (t - 7));
-        }
-
-        if (t >= 15) {
-            chromatiq.uniforms.gGlitchIntensity = 0.05 * Math.exp(-5 * (t - 15));
-        }
-
-        if (t >= 21) {
-            chromatiq.uniforms.gGlitchIntensity = 0.05 * Math.exp(-5 * (t - 21));
-        }
-
-        if (t >= 26) {
-            chromatiq.uniforms.gInvertRate = Math.exp(-8 * (t - 26));
-        }
-
-        if (t >= 26.5) {
-            chromatiq.uniforms.gXSfhitGlitch = 0.5 * Math.exp(-6 * (t - 26.5));
-        }
-
-        if (t >= 31) {
-            chromatiq.uniforms.gGlitchIntensity = 0.05 * Math.exp(-5 * (t - 31));
-        }
-
-        if (t >= 31.5) {
-            chromatiq.uniforms.gXSfhitGlitch = 0.5 * Math.exp(-10 * (t - 31.5));
-        }
-
-        chromatiq.uniforms.gBallRadius = 0;
-        chromatiq.uniforms.gBloomIntensity = 5;
-        chromatiq.uniforms.gBloomThreshold = 0.7;
     }).over(t => {
         // デモ終了後
         chromatiq.uniforms.gBlend = -1;
