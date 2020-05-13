@@ -17,30 +17,30 @@ export const easeInOutCubicVelocity = (t: number) => t < .5 ? 12 * t * t : 12 * 
 export const easeInOutCos = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t);
 
 export class Vector3 {
-    constructor(
-        public x: number,
-        public y: number,
-        public z: number
-    ) {
-    }
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number
+  ) {
+  }
 
-    add(other: Vector3) {
-        return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
-    }
+  add(other: Vector3) {
+    return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
+  }
 
-    mul(other: Vector3) {
-        return new Vector3(this.x * other.x, this.y * other.y, this.z * other.z);
-    }
+  mul(other: Vector3) {
+    return new Vector3(this.x * other.x, this.y * other.y, this.z * other.z);
+  }
 
-    scale(scale: number) {
-        return new Vector3(this.x * scale, this.y * scale, this.z * scale);
-    }
+  scale(scale: number) {
+    return new Vector3(this.x * scale, this.y * scale, this.z * scale);
+  }
 
-    static mix(v1: Vector3, v2: Vector3, a: number) {
-        return new Vector3(mix(v1.x, v2.x, a), mix(v1.y, v2.y, a), mix(v1.z, v2.z, a));
-    }
+  static mix(v1: Vector3, v2: Vector3, a: number) {
+    return new Vector3(mix(v1.x, v2.x, a), mix(v1.y, v2.y, a), mix(v1.z, v2.z, a));
+  }
 
-    static fbm(t: number) {
-        return new Vector3(fbm(11431, t), fbm(23123, t), fbm(87034, t));
-    }
+  static fbm(t: number) {
+    return new Vector3(fbm(11431, t), fbm(23123, t), fbm(87034, t));
+  }
 }
