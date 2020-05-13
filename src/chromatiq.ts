@@ -1,7 +1,7 @@
 // for Webpack DefinePlugin
-declare let PRODUCTION: boolean;
-declare let GLOBAL_UNIFORMS: boolean;
-declare let PLAY_SOUND_FILE: string;
+declare const PRODUCTION: boolean;
+declare const GLOBAL_UNIFORMS: boolean;
+declare const PLAY_SOUND_FILE: string;
 
 // NOTE: enum はコードサイズが増えるため利用禁止とします
 // NOTE: https://twitter.com/gam0022/status/1236668659285647368
@@ -163,7 +163,7 @@ export class Chromatiq {
 
       // opengl3 VAO
       const vertexArray = gl.createVertexArray();
-      const setupVAO = (program: WebGLProgram) => {
+      const setupVAO = (program: WebGLProgram): void => {
         // setup buffers and attributes to the VAO
         gl.bindVertexArray(vertexArray);
         // bind buffer data
@@ -192,13 +192,14 @@ export class Chromatiq {
         // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
       };
 
+      const imagePasses: Pass[] = [];
       const textTexture = createTextTexture(gl);
 
       const imageCommonHeaderShaderLineCount = imageCommonHeaderShader.split(
         "\n"
       ).length;
 
-      const loadShader = (src: string, type: number) => {
+      const loadShader = (src: string, type: number): WebGLShader => {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, src);
         gl.compileShader(shader);
@@ -232,7 +233,7 @@ export class Chromatiq {
         return shader;
       };
 
-      const loadProgram = (fragmentShader: string) => {
+      const loadProgram = (fragmentShader: string): WebGLProgram => {
         const shaders = [
           loadShader(vertexShader, gl.VERTEX_SHADER),
           loadShader(fragmentShader, gl.FRAGMENT_SHADER),
@@ -246,7 +247,9 @@ export class Chromatiq {
         return program;
       };
 
-      const createLocations = (pass: Pass) => {
+      const createLocations = (
+        pass: Pass
+      ): { [index: string]: WebGLUniformLocation } => {
         const locations: { [index: string]: WebGLUniformLocation } = {};
         Object.keys(pass.uniforms).forEach((key) => {
           locations[key] = gl.getUniformLocation(pass.program, key);
@@ -254,7 +257,7 @@ export class Chromatiq {
         return locations;
       };
 
-      const setupFrameBuffer = (pass: Pass) => {
+      const setupFrameBuffer = (pass: Pass): void => {
         // NOTE: 最終パスならフレームバッファは不要なので生成しません
         if (pass.type === PassType.FinalImage) {
           return;
@@ -317,7 +320,7 @@ export class Chromatiq {
         index: number,
         type: PassType,
         scale: number
-      ) => {
+      ): Pass => {
         setupVAO(program);
         const pass = new Pass();
         pass.program = program;
@@ -366,7 +369,7 @@ export class Chromatiq {
         return pass;
       };
 
-      const renderPass = (pass: Pass) => {
+      const renderPass = (pass: Pass): void => {
         gl.useProgram(pass.program);
         gl.bindFramebuffer(gl.FRAMEBUFFER, pass.frameBuffer);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -454,7 +457,7 @@ export class Chromatiq {
         });
       };
 
-      this.playSound = () => {
+      this.playSound = (): void => {
         if (!PRODUCTION) {
           const newAudioSource = this.audioContext.createBufferSource();
           newAudioSource.buffer = this.audioSource.buffer;
@@ -470,12 +473,12 @@ export class Chromatiq {
       };
 
       if (!PRODUCTION) {
-        this.stopSound = () => {
+        this.stopSound = (): void => {
           this.audioSource.stop();
         };
       }
 
-      const initSound = () => {
+      const initSound = (): void => {
         const sampleLength = Math.ceil(audio.sampleRate * timeLength);
         const audioBuffer = audio.createBuffer(
           2,
@@ -544,7 +547,7 @@ export class Chromatiq {
         this.audioSource.connect(audio.destination);
       };
 
-      this.render = () => {
+      this.render = (): void => {
         imagePasses.forEach((pass) => {
           pass.uniforms.iTime.value = this.time;
           if (GLOBAL_UNIFORMS) {
@@ -570,7 +573,7 @@ export class Chromatiq {
       // get global uniforms
       if (GLOBAL_UNIFORMS) {
         let currentGroup = "default";
-        const getGlobalUniforms = (fragmentShader: string) => {
+        const getGlobalUniforms = (fragmentShader: string): void => {
           const reg = /uniform (float|vec3) (g.+);\s*(\/\/ ([\-\d\.-]+))?( ([\-\d\.]+) ([\-\d\.]+))?( [\w\d]+)?/g;
           let result: RegExpExecArray;
           while ((result = reg.exec(fragmentShader)) !== null) {
@@ -634,7 +637,6 @@ export class Chromatiq {
       }
 
       // create rendering pipeline
-      const imagePasses: Pass[] = [];
       let passIndex = 0;
       imageShaders.forEach((shader, i, ary) => {
         if (i === bloomPassBeginIndex) {
@@ -714,7 +716,7 @@ export class Chromatiq {
       // rendering loop
       let lastTimestamp = 0;
       let startTimestamp: number | null = null;
-      const update = (timestamp: number) => {
+      const update = (timestamp: number): void => {
         requestAnimationFrame(update);
         if (!startTimestamp) {
           startTimestamp = timestamp;
@@ -752,7 +754,7 @@ export class Chromatiq {
         lastTimestamp = timestamp;
       };
 
-      this.play = () => {
+      this.play = (): void => {
         requestAnimationFrame(update);
       };
     };
