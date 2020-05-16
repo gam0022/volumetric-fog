@@ -1,9 +1,11 @@
-import { chromatiq, animateUniforms } from './index.common'
+import { chromatiq, animateUniforms } from "./index.common";
 
 // for Webpack DefinePlugin
-declare var NEORT: boolean;
+declare const NEORT: boolean;
 
-window.addEventListener("load", ev => {
+window.addEventListener(
+  "load",
+  () => {
     let finished = false;
 
     const style = document.createElement("style");
@@ -11,7 +13,7 @@ window.addEventListener("load", ev => {
     document.head.appendChild(style);
 
     document.addEventListener("fullscreenchange", () => {
-        document.body.style.cursor = window.document.fullscreenElement ? "none" : "auto";
+      document.body.style.cursor = window.document.fullscreenElement ? "none" : "auto";
     });
 
     const container = document.createElement("div");
@@ -24,14 +26,14 @@ window.addEventListener("load", ev => {
 
     const resolutionScale = document.createElement("select");
     if (NEORT) {
-        resolutionScale.innerHTML = `
+      resolutionScale.innerHTML = `
     <option value="0.25">LOW 25%</option>
     <option value="0.5" selected>REGULAR 50%</option>
     <option value="0.75">REGULAR 75%</option>
     <option value="1.0">FULL 100%</option>
     `;
     } else {
-        resolutionScale.innerHTML = `
+      resolutionScale.innerHTML = `
     <option value="0.25">LOW 25%</option>
     <option value="0.5">REGULAR 50%</option>
     <option value="0.75">REGULAR 75%</option>
@@ -44,50 +46,52 @@ window.addEventListener("load", ev => {
     container.appendChild(button);
     button.innerHTML = "CLICK TO START";
     button.className = "button";
-    button.onclick = () => {
-        button.remove();
-        resolutionMessage.remove();
+    button.onclick = (): void => {
+      button.remove();
+      resolutionMessage.remove();
 
-        // loading animation
-        const loading = document.createElement("p");
-        loading.innerHTML = 'LOADING <div class="lds-facebook"><div></div><div></div><div></div></div>';
-        container.appendChild(loading);
+      // loading animation
+      const loading = document.createElement("p");
+      loading.innerHTML = 'LOADING <div class="lds-facebook"><div></div><div></div><div></div></div>';
+      container.appendChild(loading);
 
-        const loadingMessage = document.createElement("p");
-        if (NEORT) {
-            loadingMessage.innerHTML = "It takes about one minute. Please wait.<br> 読み込みに1分程度かかります。しばらくお待ち下さい。";
-        } else {
-            loadingMessage.innerHTML = "It takes about one minute. Please wait.";
-        }
-        loadingMessage.style.fontSize = "50px";
-        container.appendChild(loadingMessage);
+      const loadingMessage = document.createElement("p");
+      if (NEORT) {
+        loadingMessage.innerHTML = "It takes about one minute. Please wait.<br> 読み込みに1分程度かかります。しばらくお待ち下さい。";
+      } else {
+        loadingMessage.innerHTML = "It takes about one minute. Please wait.";
+      }
+      loadingMessage.style.fontSize = "50px";
+      container.appendChild(loadingMessage);
 
-        document.body.requestFullscreen().then(() => {
-            setTimeout(() => {
-                chromatiq.onRender = (time, timeDelta) => {
-                    animateUniforms(time, false, false);
-                    if (!finished && time > chromatiq.timeLength + 2.0) {
-                        document.exitFullscreen();
-                        finished = true;
-                    }
-                }
+      document.body.requestFullscreen().then(() => {
+        setTimeout(() => {
+          chromatiq.onRender = (time): void => {
+            animateUniforms(time, false, false);
+            if (!finished && time > chromatiq.timeLength + 2.0) {
+              document.exitFullscreen();
+              finished = true;
+            }
+          };
 
-                chromatiq.init();
-                container.remove();
+          chromatiq.init();
+          container.remove();
 
-                const onResize = () => {
-                    const scale = parseFloat(resolutionScale.value);
-                    chromatiq.setSize(window.innerWidth * scale, window.innerHeight * scale);
-                };
+          const onResize = (): void => {
+            const scale = parseFloat(resolutionScale.value);
+            chromatiq.setSize(window.innerWidth * scale, window.innerHeight * scale);
+          };
 
-                window.addEventListener("resize", onResize);
-                onResize();
+          window.addEventListener("resize", onResize);
+          onResize();
 
-                setTimeout(() => {
-                    chromatiq.play();
-                    chromatiq.playSound();
-                }, 2500);
-            }, 1000);
-        });
-    }
-}, false);
+          setTimeout(() => {
+            chromatiq.play();
+            chromatiq.playSound();
+          }, 2500);
+        }, 1000);
+      });
+    };
+  },
+  false
+);
