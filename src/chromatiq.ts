@@ -95,7 +95,7 @@ export class Chromatiq {
   ) {
     // NOTE: フィールド参照の this を使うとコードサイズが増えるため、コンストラクタの中で動的にメソッドを定義することで、this の利用を最小限にしています
     // NOTE: クラス外から値を参照・設定する必要があるデータのみ、フィールドとして定義する方針とします
-    this.init = () => {
+    this.init = (): void => {
       this.timeLength = timeLength;
       this.isPlaying = true;
       this.needsUpdate = false;
@@ -384,7 +384,7 @@ export class Chromatiq {
         gl.useProgram(null);
       };
 
-      this.setSize = (width: number, height: number) => {
+      this.setSize = (width: number, height: number): void => {
         const canvas = gl.canvas;
         canvas.width = width;
         canvas.height = height;
