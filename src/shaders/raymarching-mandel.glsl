@@ -7,13 +7,13 @@ uniform float gSceneEps;  // 0.002 0.00001 0.01
 #define SCENE_MANDEL 0.0
 #define SCENE_UNIVERSE 1.0
 
-uniform float gCameraEyeX;     // 0 -100 100 camera
-uniform float gCameraEyeY;     // 2.8 -100 100
-uniform float gCameraEyeZ;     // -8 -100 100
-uniform float gCameraTargetX;  // 0 -100 100
-uniform float gCameraTargetY;  // 2.75 -100 100
-uniform float gCameraTargetZ;  // 0 -100 100
-uniform float gCameraFov;      // 13 0 180
+uniform float gCameraEyeX;     // -0.08828528243935951 -100 100 camera
+uniform float gCameraEyeY;     // 3.5309297601209235 -100 100
+uniform float gCameraEyeZ;     // -2.705631420983895 -100 100
+uniform float gCameraTargetX;  // 0.7576763789243015 -100 100
+uniform float gCameraTargetY;  // 3.4515422110479044 -100 100
+uniform float gCameraTargetZ;  // -0.21633410393024527 -100 100
+uniform float gCameraFov;      // 37.88049605411499 0 180
 
 uniform float gMandelboxScale;   // 2.7 1 5 mandel
 uniform float gMandelboxRepeat;  // 10 1 100
@@ -236,11 +236,10 @@ vec3 evalDirectionalLight(inout Intersection i, vec3 v, vec3 lightDir, vec3 radi
 // https://www.shadertoy.com/view/WsfBDf
 
 const int c_numRayMarchSteps = 16;
-const float c_fogDensity = 0.002f;
 const vec3 c_fogColorLit = vec3(1.0f, 1.0f, 1.0f);
 const vec3 c_fogColorUnlit = vec3(0.0f, 0.0f, 0.0f);
 
-uniform float gFogDensity;  // 0.002 0 0.2 fog
+uniform float gFogDensity;  // 0.13 0 0.5 fog
 
 // this noise, including the 5.58... scrolling constant are from Jorge Jimenez
 float InterleavedGradientNoise(vec2 pixel, int frame) {
