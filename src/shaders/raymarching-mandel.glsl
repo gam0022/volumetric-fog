@@ -144,13 +144,6 @@ float calcEdge(vec3 p) {
     return edge;
 }
 
-// Thanks https://shadertoy.com/view/ttsGR4
-float revisionLogo(vec2 p, float rot) {
-    int[] pat = int[](0, ~0, 0x7C, 0xC0F03C00, 0xF7FBFF01, ~0, 0, 0x8320D39F, ~0, 0x1F0010, 0);
-    int r = clamp(int(20. * length(p)), 0, 10);
-    return float(pat[r] >> int(5.1 * atan(p.y, p.x) + 16. + (hash11(float(r * 1231)) - 0.5) * rot) & 1);
-}
-
 uniform float gEmissiveIntensity;     // 6.0 0 20 emissive
 uniform float gEmissiveSpeed;         // 1 0 2
 uniform float gEmissiveHue;           // 0.33947042613522904 0 1
@@ -233,23 +226,6 @@ vec3 evalDirectionalLight(inout Intersection i, vec3 v, vec3 lightDir, vec3 radi
     float m = roughnessToExponent(i.roughness);
     vec3 specular = ref * pow(max(0.0, dot(n, h)), m) * (m + 2.0) / (8.0 * PI);
     return (diffuse + specular) * radiance * max(0.0, dot(l, n));
-}
-
-// http://www.fractalforums.com/new-theories-and-research/very-simple-formula-for-fractal-patterns/
-float fractal(vec3 p, int n) {
-    float strength = 7.0;
-    float accum = 0.25;
-    float prev = 0.;
-    float tw = 0.;
-    for (int i = 0; i < n; i++) {
-        float mag = dot(p, p);
-        p = abs(p) / mag + vec3(-.5, -.4, -1.5);
-        float w = exp(-float(i) / 7.);
-        accum += w * exp(-strength * pow(abs(mag - prev), 2.2));
-        tw += w;
-        prev = mag;
-    }
-    return max(0., 5. * accum / tw - .7);
 }
 
 void calcRadiance(inout Intersection intersection, inout Ray ray) {
