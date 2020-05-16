@@ -93,24 +93,13 @@ float dMandelFast(vec3 p, float scale, int n) {
     return length(q.xyz) / abs(q.w);
 }
 
-vec2 foldRotate(vec2 p, float s) {
-    float a = PI / s - atan(p.x, p.y);
-    float n = TAU / s;
-    a = floor(a / n) * n;
-    p = rotate(a) * p;
-    return p;
-}
-
-uniform float gFoldRotate;  // 1 0 20
-
-float dStage(vec3 p) {
-    float b = max(beat - 128.0, 0.0) + (p.z + 10.0);
-    p.xy = foldRotate(p.xy, gFoldRotate);
-    return dMandelFast(p, gMandelboxScale, int(gMandelboxRepeat));
-}
-
 float map(vec3 p) {
-    float d = dStage(p);
+    float d = dMandelFast(p, gMandelboxScale, int(gMandelboxRepeat));
+    return d;
+}
+
+float mapLod(vec3 p) {
+    float d = dMandelFast(p, gMandelboxScale, 5);
     return d;
 }
 
@@ -186,16 +175,33 @@ void intersectObjects(inout Intersection intersection, inout Ray ray) {
         intersection.roughness = gRoughness;
         intersection.metallic = gMetallic;
 
-        float edge = calcEdge(p);
-        float hue = gEmissiveHue + gEmissiveHueShiftZ * p.z + gEmissiveHueShiftXY * length(p.xy) + gEmissiveHueShiftBeat * beat;
-        intersection.emission = gEmissiveIntensity * hsv2rgb(vec3(hue, 0.8, 1.0)) * pow(edge, gEdgePower) * saturate(cos(beat * gEmissiveSpeed * TAU - mod(0.5 * intersection.position.z, TAU)));
+        // float edge = calcEdge(p);
+        // float hue = gEmissiveHue + gEmissiveHueShiftZ * p.z + gEmissiveHueShiftXY * length(p.xy) + gEmissiveHueShiftBeat * beat;
+        // intersection.emission = gEmissiveIntensity * hsv2rgb(vec3(hue, 0.8, 1.0)) * pow(edge, gEdgePower) * saturate(cos(beat * gEmissiveSpeed * TAU - mod(0.5 * intersection.position.z, TAU)));
         intersection.reflectance = 0.0;
     }
 }
 
-void intersectScene(inout Intersection intersection, inout Ray ray) {
-    intersection.distance = INF;
-    intersectObjects(intersection, ray);
+uniform float gLodEps;    // 0.001 0 0.01 lod
+uniform float gLodLoop;   // 50 0 100
+uniform float gLodScale;  // 2 1 10
+
+void intersectObjectsLod(inout Intersection intersection, inout Ray ray) {
+    float d;
+    float distance = 0.0;
+    vec3 p = ray.origin;
+    float eps = gLodEps;
+
+    for (int i = 0; i < int(gLodLoop); i++) {
+        d = mapLod(p);
+        distance += d * gLodScale;
+        p = ray.origin + distance * ray.direction;
+        if (d < eps) break;
+    }
+
+    if (distance < intersection.distance) {
+        intersection.hit = true;
+    }
 }
 
 #define FLT_EPS 5.960464478e-8
@@ -266,13 +272,14 @@ vec3 applyFog(in vec3 rayPos, in vec3 rayDir, in vec3 pixelColor, in float rayHi
         // SRayHitInfo shadowHitInfo = RayVsScene(testPos, c_lightDir);
 
         Intersection intersection;
+        intersection.distance = INF;
         intersection.hit = false;
 
         Ray ray;
         ray.origin = testPos;
         ray.direction = directionalLight;
 
-        intersectScene(intersection, ray);
+        intersectObjectsLod(intersection, ray);
         fogLitPercent = mix(fogLitPercent, intersection.hit ? 0.0 : 1.0, 1.0 / float(i + 1));
     }
 
@@ -283,7 +290,8 @@ vec3 applyFog(in vec3 rayPos, in vec3 rayDir, in vec3 pixelColor, in float rayHi
 
 void calcRadiance(inout Intersection intersection, inout Ray ray, vec2 fragCoord) {
     intersection.hit = false;
-    intersectScene(intersection, ray);
+    intersection.distance = INF;
+    intersectObjects(intersection, ray);
 
     if (intersection.hit) {
         intersection.color = intersection.emission;
