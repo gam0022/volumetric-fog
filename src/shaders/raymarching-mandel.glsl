@@ -1,6 +1,8 @@
 const float INF = 1e+10;
 const float OFFSET = 0.1;
 
+vec3 directionalLight;
+
 uniform float gSceneEps;  // 0.002 0.00001 0.01
 #define SCENE_MANDEL 0.0
 #define SCENE_UNIVERSE 1.0
@@ -153,6 +155,9 @@ uniform float gEmissiveHueShiftXY;    // 0 0 1
 
 uniform float gF0;                    // 0.95 0 1 lighting
 uniform float gCameraLightIntensity;  // 1 0 10
+uniform float gDirectionalLightX;     // -0.48666426339228763 -1 1
+uniform float gDirectionalLightY;     // 0.8111071056538127 -1 1
+uniform float gDirectionalLightZ;     // 0.3244428422615251 -1 1
 
 float fresnelSchlick(float f0, float cosTheta) { return f0 + (1.0 - f0) * pow((1.0 - cosTheta), 5.0); }
 
@@ -237,7 +242,7 @@ void calcRadiance(inout Intersection intersection, inout Ray ray) {
         intersection.color += evalPointLight(intersection, -ray.direction, camera.eye, gCameraLightIntensity * vec3(80.0, 80.0, 100.0));
 
         vec3 sunColor = vec3(2.0, 1.0, 1.0);
-        intersection.color += evalDirectionalLight(intersection, -ray.direction, vec3(-0.48666426339228763, 0.8111071056538127, 0.3244428422615251), sunColor);
+        intersection.color += evalDirectionalLight(intersection, -ray.direction, directionalLight, sunColor);
 
         // fog
         // intersection.color = mix(intersection.color, vec3(0.01), 1.0 - exp(-0.01 * intersection.distance));
@@ -264,6 +269,8 @@ vec2 distortion(vec2 uv) {
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
     uv = distortion(uv);
+
+    directionalLight = normalize(vec3(gDirectionalLightX, gDirectionalLightY, gDirectionalLightZ));
 
     camera.eye = vec3(gCameraEyeX, gCameraEyeY, gCameraEyeZ);
     camera.target = vec3(gCameraTargetX, gCameraTargetY, gCameraTargetZ);
