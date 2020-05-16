@@ -233,7 +233,56 @@ vec3 evalDirectionalLight(inout Intersection i, vec3 v, vec3 lightDir, vec3 radi
     return (diffuse + specular) * radiance * max(0.0, dot(l, n));
 }
 
-void calcRadiance(inout Intersection intersection, inout Ray ray) {
+// https://www.shadertoy.com/view/WsfBDf
+
+const int c_numRayMarchSteps = 16;
+const float c_fogDensity = 0.002f;
+const vec3 c_fogColorLit = vec3(1.0f, 1.0f, 1.0f);
+const vec3 c_fogColorUnlit = vec3(0.0f, 0.0f, 0.0f);
+
+uniform float gFogDensity;  // 0.002 0 0.2 fog
+
+// this noise, including the 5.58... scrolling constant are from Jorge Jimenez
+float InterleavedGradientNoise(vec2 pixel, int frame) {
+    pixel += (float(frame) * 5.588238f);
+    return fract(52.9829189f * fract(0.06711056f * float(pixel.x) + 0.00583715f * float(pixel.y)));
+}
+
+// ray march from the camera to the depth of what the ray hit to do some simple scattering
+vec3 applyFog(in vec3 rayPos, in vec3 rayDir, in vec3 pixelColor, in float rayHitTime, in vec2 pixelPos) {
+    // Offset the start of the ray between 0 and 1 ray marching steps.
+    // This turns banding into noise.
+    int frame = 0;
+    // TODO: iFrame
+    // frame = iFrame % 64;
+
+    float startRayOffset = InterleavedGradientNoise(pixelPos, frame);
+
+    // calculate how much of the ray is in direct light by taking a fixed number of steps down the ray
+    // and calculating the percent.
+    // Note: in a rasterizer, you'd replace the RayVsScene raytracing with a shadow map lookup!
+    float fogLitPercent = 0.0f;
+    for (int i = 0; i < c_numRayMarchSteps; ++i) {
+        vec3 testPos = rayPos + rayDir * rayHitTime * ((float(i) + startRayOffset) / float(c_numRayMarchSteps));
+        // SRayHitInfo shadowHitInfo = RayVsScene(testPos, c_lightDir);
+
+        Intersection intersection;
+        intersection.hit = false;
+
+        Ray ray;
+        ray.origin = testPos;
+        ray.direction = directionalLight;
+
+        intersectScene(intersection, ray);
+        fogLitPercent = mix(fogLitPercent, intersection.hit ? 0.0 : 1.0, 1.0 / float(i + 1));
+    }
+
+    vec3 fogColor = mix(c_fogColorUnlit, c_fogColorLit, fogLitPercent);
+    float absorb = exp(-rayHitTime * gFogDensity);
+    return mix(fogColor, pixelColor, absorb);
+}
+
+void calcRadiance(inout Intersection intersection, inout Ray ray, vec2 fragCoord) {
     intersection.hit = false;
     intersectScene(intersection, ray);
 
@@ -246,8 +295,9 @@ void calcRadiance(inout Intersection intersection, inout Ray ray) {
 
         // fog
         // intersection.color = mix(intersection.color, vec3(0.01), 1.0 - exp(-0.01 * intersection.distance));
+        intersection.color = applyFog(ray.origin, ray.direction, intersection.color, intersection.distance, fragCoord);
     } else {
-        intersection.color = vec3(0.01);
+        intersection.color = c_fogColorLit;
     }
 }
 
@@ -282,7 +332,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     Intersection intersection;
 
     for (int bounce = 0; bounce < 2; bounce++) {
-        calcRadiance(intersection, ray);
+        calcRadiance(intersection, ray, fragCoord);
         color += reflection * intersection.color;
         if (!intersection.hit || intersection.reflectance == 0.0) break;
 
