@@ -5,7 +5,7 @@ import { mix, clamp, saturate, Vector3, remap, remapFrom, remapTo, easeInOutCubi
 declare const PRODUCTION: boolean;
 
 export const chromatiq = new Chromatiq(
-  109.714285714, // デモの長さ（秒）
+  60, // デモの長さ（秒）
   require("./shaders/build-in/vertex.glsl").default,
 
   // Image Shaders
@@ -129,7 +129,7 @@ class Timeline {
 }
 
 export const animateUniforms = (time: number, debugCamera: boolean, debugDisableReset: boolean): void => {
-  const bpm = 140;
+  const bpm = 128;
   const beat = (time * bpm) / 60;
 
   let camera = new Vector3(0, 0, 10);

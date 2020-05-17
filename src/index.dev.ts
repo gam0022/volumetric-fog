@@ -23,7 +23,7 @@ window.addEventListener(
       debugDisableReset: false,
       resolution: "1920x1080",
       timeMode: "beat",
-      bpm: 140,
+      bpm: 128,
     };
 
     // HTMLElements
