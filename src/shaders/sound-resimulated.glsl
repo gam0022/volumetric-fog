@@ -512,10 +512,10 @@ vec2 kick1(float beat, float time) {
 #define KICK1_BEAT_LEN 8
 
 // 展開のパターンの種類
-#define KICK1_DEV_PAT 4
+#define KICK1_DEV_PAT 2
 
 // 展開の長さ
-#define KICK1_DEV_LEN 32
+#define KICK1_DEV_LEN 16
 
     // F: 4分音符
     // E: 8分音符
@@ -526,16 +526,10 @@ vec2 kick1(float beat, float time) {
         F(1), E(1, 0), F(0), E(0, 1), F(1), E(1, 0), F(0), F(1),
 
         // 展開1
-        F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1),
-
-        // 展開2
-        F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(0),
-
-        // 展開3
-        F(1), F(1), F(1), F(1), F(0), F(0), F(0), F(0));
+        F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1));
 
     // 展開 #define KICK1_DEV_LEN 8　変える
-    int[KICK1_DEV_LEN / DEV_PACK] development = int[](D(0, 0, 0, 0, 0, 0, 0, 0), D(1, 1, 1, 2, 1, 1, 1, 1), D(1, 1, 1, 1, 1, 1, 1, 1), D(1, 1, 1, 1, 1, 1, 1, 3));
+    int[KICK1_DEV_LEN / DEV_PACK] development = int[](D(0, 0, 0, 0, 0, 0, 0, 0), D(0, 0, 0, 0, 0, 0, 0, 0));
 
     SEQUENCER(beat, time, KICK1_BEAT_LEN, KICK1_DEV_PAT, KICK1_DEV_LEN, notes, development, kick)
 
@@ -553,10 +547,10 @@ vec2 kick2(float beat, float time) {
 #define KICK2_BEAT_LEN 8
 
 // 展開のパターンの種類
-#define KICK2_DEV_PAT 3
+#define KICK2_DEV_PAT 2
 
 // 展開の長さ
-#define KICK2_DEV_LEN 32
+#define KICK2_DEV_LEN 16
 
     // F: 4分音符
     // E: 8分音符
@@ -567,13 +561,10 @@ vec2 kick2(float beat, float time) {
         F(1), F(0), F(0), E(0, 1), F(1), F(0), F(0), F(1),
 
         // 展開1
-        F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1),
-
-        // 展開2
-        O(0), O(0));
+        F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1));
 
     // 展開 #define KICK1_DEV_LEN 8　変える
-    int[KICK2_DEV_LEN / DEV_PACK] development = int[](D(0, 0, 0, 0, 0, 0, 0, 0), D(1, 1, 1, 1, 1, 1, 1, 1), D(1, 1, 1, 1, 1, 1, 1, 1), D(2, 2, 2, 2, 2, 2, 2, 2));
+    int[KICK2_DEV_LEN / DEV_PACK] development = int[](D(0, 0, 0, 0, 0, 0, 0, 0), D(0, 0, 0, 0, 0, 0, 0, 0));
 
     SEQUENCER(beat, time, KICK2_BEAT_LEN, KICK2_DEV_PAT, KICK2_DEV_LEN, notes, development, kickattack)
 
