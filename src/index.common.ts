@@ -165,11 +165,10 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
     .then(16, (t) => {
       chromatiq.uniforms.gTonemapExposure = 1;
 
-      camera = new Vector3(0.042533747248285514, 3.580181344478862, -3.2355081018643443).add(Vector3.fbm(t).scale(0.01));
+      camera = new Vector3(-4.56199979681654, 3.6488348437402, -0.718886105195862).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(-0.41268738441838876, 3.3606772954220783, 0.2967424981258505);
+      chromatiq.uniforms.gCameraFov = 44;
 
-      target = new Vector3(0.7576763789243015, 3.4515422110479044, -0.21633410393024527);
-
-      chromatiq.uniforms.gCameraFov = 7.88049605411499;
       chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
       chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
     })
