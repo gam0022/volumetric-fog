@@ -85,7 +85,6 @@ float dMandelFast(vec3 p, float scale, int n) {
     vec4 q = q0;
 
     for (int i = 0; i < n; i++) {
-        // q.xz = mul(rotate(_MandelRotateXZ), q.xz);
         q.xyz = clamp(q.xyz, -1.0, 1.0) * 2.0 - q.xyz;
         q = q * scale / clamp(dot(q.xyz, q.xyz), 0.3, 1.0) + q0;
     }
@@ -102,45 +101,6 @@ float mapLod(vec3 p) {
     float d = dMandelFast(p, gMandelboxScale, 5);
     return d;
 }
-
-// https://www.shadertoy.com/view/lttGDn
-float calcEdge(vec3 p) {
-    float edge = 0.0;
-    vec2 e = vec2(gEdgeEps, 0);
-
-    // Take some distance function measurements from either side of the hit
-    // point on all three axes.
-    float d1 = map(p + e.xyy), d2 = map(p - e.xyy);
-    float d3 = map(p + e.yxy), d4 = map(p - e.yxy);
-    float d5 = map(p + e.yyx), d6 = map(p - e.yyx);
-    float d = map(p) * 2.;  // The hit point itself - Doubled to cut down on
-                            // calculations. See below.
-
-    // Edges - Take a geometry measurement from either side of the hit point.
-    // Average them, then see how much the value differs from the hit point
-    // itself. Do this for X, Y and Z directions. Here, the sum is used for the
-    // overall difference, but there are other ways. Note that it's mainly sharp
-    // surface curves that register a discernible difference.
-    edge = abs(d1 + d2 - d) + abs(d3 + d4 - d) + abs(d5 + d6 - d);
-    // edge = max(max(abs(d1 + d2 - d), abs(d3 + d4 - d)), abs(d5 + d6 - d)); //
-    // Etc.
-
-    // Once you have an edge value, it needs to normalized, and smoothed if
-    // possible. How you do that is up to you. This is what I came up with for
-    // now, but I might tweak it later.
-    edge = smoothstep(0., 1., sqrt(edge / e.x * 2.));
-
-    // Return the normal.
-    // Standard, normalized gradient mearsurement.
-    return edge;
-}
-
-uniform float gEmissiveIntensity;     // 6.0 0 20 emissive
-uniform float gEmissiveSpeed;         // 1 0 2
-uniform float gEmissiveHue;           // 0.33947042613522904 0 1
-uniform float gEmissiveHueShiftBeat;  // 0 0 1
-uniform float gEmissiveHueShiftZ;     // 0 0 1
-uniform float gEmissiveHueShiftXY;    // 0 0 1
 
 uniform float gF0;                 // 0.95 0 1 lighting
 uniform float gDirectionalLightX;  // -0.48666426339228763 -1 1
@@ -174,10 +134,6 @@ void intersectObjects(inout Intersection intersection, inout Ray ray) {
         intersection.baseColor = vec3(gBaseColor);
         intersection.roughness = gRoughness;
         intersection.metallic = gMetallic;
-
-        // float edge = calcEdge(p);
-        // float hue = gEmissiveHue + gEmissiveHueShiftZ * p.z + gEmissiveHueShiftXY * length(p.xy) + gEmissiveHueShiftBeat * beat;
-        // intersection.emission = gEmissiveIntensity * hsv2rgb(vec3(hue, 0.8, 1.0)) * pow(edge, gEdgePower) * saturate(cos(beat * gEmissiveSpeed * TAU - mod(0.5 * intersection.position.z, TAU)));
         intersection.reflectance = 0.0;
     }
 }
