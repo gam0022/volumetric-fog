@@ -107,6 +107,7 @@ uniform float gDirectionalLightX;  // -0.48666426339228763 -1 1
 uniform float gDirectionalLightY;  // 0.8111071056538127 -1 1
 uniform float gDirectionalLightZ;  // 0.3244428422615251 -1 1
 uniform float gAmbientIntensity;   // 0.08 0 1
+uniform vec3 gSunColor;            // 255 128 128
 
 float fresnelSchlick(float f0, float cosTheta) { return f0 + (1.0 - f0) * pow((1.0 - cosTheta), 5.0); }
 
@@ -138,7 +139,7 @@ void intersectObjects(inout Intersection intersection, inout Ray ray) {
     }
 }
 
-uniform float gLodEps;    // 0.00001 0 0.01 lod
+uniform float gLodEps;    // 0.00001 0 0.01
 uniform float gLodLoop;   // 45 0 100
 uniform float gLodScale;  // 3.1 1 10
 
@@ -232,7 +233,7 @@ const int c_numRayMarchSteps = 16;
 const vec3 c_fogColorLit = vec3(1.0f, 1.0f, 1.0f);
 const vec3 c_fogColorUnlit = vec3(0.0f, 0.0f, 0.0f);
 
-uniform float gFogDensity;  // 0.13 0 0.5 fog
+uniform float gFogDensity;  // 0.13 0 0.5
 
 // this noise, including the 5.58... scrolling constant are from Jorge Jimenez
 float InterleavedGradientNoise(vec2 pixel, int frame) {
@@ -278,11 +279,8 @@ void calcRadiance(inout Intersection intersection, inout Ray ray, vec2 fragCoord
 
     if (intersection.hit) {
         intersection.color = intersection.emission;
-
-        vec3 sunColor = vec3(2.0, 1.0, 1.0);
-        intersection.color += gAmbientIntensity * sunColor * calcAo(intersection.position, intersection.normal);
-        intersection.color += evalDirectionalLight(intersection, -ray.direction, directionalLight, sunColor) * calcShadow(intersection.position, directionalLight);
-
+        intersection.color += gAmbientIntensity * gSunColor * calcAo(intersection.position, intersection.normal);
+        intersection.color += evalDirectionalLight(intersection, -ray.direction, directionalLight, gSunColor) * calcShadow(intersection.position, directionalLight);
         intersection.color = applyFog(ray.origin, ray.direction, intersection.color, intersection.distance, fragCoord);
     } else {
         intersection.color = c_fogColorLit;
