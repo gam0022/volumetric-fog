@@ -1850,6 +1850,7 @@ vec2 mainSound(float time) {
     ret += vec2(0.7) * kick1(beat, time);
     ret += vec2(0.06) * kick2(beat, time);
 
+    /*
     // Exf
     ret += vec2(0.5, 0.15) * crashcymbal1(beat, time);
     ret += vec2(0.15, 0.5) * crashcymbal2(beat, time);
@@ -1917,12 +1918,10 @@ vec2 mainSound(float time) {
     ret += vec2(0.2) * snare1(beat, time);
     ret += vec2(0.1) * snare2(beat, time);
     ret += vec2(0.37, 0.3) * sidechain2 * noisefeed(beat, time);
-
-    ret *= 0.0;
+    */
 
     // Wind
     vec2 audio = Wind(time * .1) * 6.0;
-    // return clamp(audio, -1.0, 1.0) * (smoothstep(0.0, 2.0, time) * smoothstep(180.0, 175.0, time));
     ret += clamp(audio, -1.0, 1.0) * (smoothstep(0.0, 2.0, time) * smoothstep(180.0, 175.0, time));
 
     return clamp(ret, -1.0, 1.0);
