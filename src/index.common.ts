@@ -146,18 +146,31 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
     chromatiq.uniforms[uniform.key] = uniform.initValue;
   });
 
-  new Timeline(beat)
-    .then(8 * 6, (t) => {
+  new Timeline(beat % 128)
+    .then(16, (t) => {
+      chromatiq.uniforms.gTonemapExposure = 1;
+      camera = new Vector3(-4.379722982532216 - 0.1 * t, 2.7148724854688524, -0.28991836612215305).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(-0.5453302285259057, 2.2577012315588685, 0.49141768491439874);
+      chromatiq.uniforms.gCameraFov = 44;
+
+      chromatiq.uniforms.gDirectionalLightX = 0.2 + t * 0.05;
+      chromatiq.uniforms.gDirectionalLightY = 0.59;
+      chromatiq.uniforms.gDirectionalLightZ = 0.32;
+
+      chromatiq.uniforms.gFogDensity = 0.06;
+
+      chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
+      chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
+    })
+    .then(16, (t) => {
       chromatiq.uniforms.gTonemapExposure = 1;
 
       camera = new Vector3(0.042533747248285514, 3.580181344478862, -3.2355081018643443).add(Vector3.fbm(t).scale(0.01));
 
       target = new Vector3(0.7576763789243015, 3.4515422110479044, -0.21633410393024527);
 
-      chromatiq.uniforms.gCameraFov = 37.88049605411499;
+      chromatiq.uniforms.gCameraFov = 7.88049605411499;
       chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
-      chromatiq.uniforms.gCameraLightIntensity = 0;
-      chromatiq.uniforms.gEmissiveIntensity = 0;
       chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
     })
     .over(() => {

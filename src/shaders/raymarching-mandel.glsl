@@ -106,7 +106,7 @@ uniform float gF0;                 // 0.95 0 1 lighting
 uniform float gDirectionalLightX;  // -0.48666426339228763 -1 1
 uniform float gDirectionalLightY;  // 0.8111071056538127 -1 1
 uniform float gDirectionalLightZ;  // 0.3244428422615251 -1 1
-uniform float gAmbientIntensity;   // 0.08 0 1
+uniform float gAmbientIntensity;   // 0.077 0 1
 uniform vec3 gSunColor;            // 255 128 128
 
 float fresnelSchlick(float f0, float cosTheta) { return f0 + (1.0 - f0) * pow((1.0 - cosTheta), 5.0); }
