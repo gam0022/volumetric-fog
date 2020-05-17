@@ -245,9 +245,6 @@ vec3 applyFog(in vec3 rayPos, in vec3 rayDir, in vec3 pixelColor, in float rayHi
     // Offset the start of the ray between 0 and 1 ray marching steps.
     // This turns banding into noise.
     int frame = 0;
-    // TODO: iFrame
-    // frame = iFrame % 64;
-
     float startRayOffset = InterleavedGradientNoise(pixelPos, frame);
 
     // calculate how much of the ray is in direct light by taking a fixed number of steps down the ray
@@ -256,7 +253,6 @@ vec3 applyFog(in vec3 rayPos, in vec3 rayDir, in vec3 pixelColor, in float rayHi
     float fogLitPercent = 0.0f;
     for (int i = 0; i < c_numRayMarchSteps; ++i) {
         vec3 testPos = rayPos + rayDir * rayHitTime * ((float(i) + startRayOffset) / float(c_numRayMarchSteps));
-        // SRayHitInfo shadowHitInfo = RayVsScene(testPos, c_lightDir);
 
         Intersection intersection;
         intersection.distance = INF;
