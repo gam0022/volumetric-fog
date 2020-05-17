@@ -1,4 +1,4 @@
-uniform float gChromaticAberrationIntensity;  // 0.03 0 0.1 post
+uniform float gChromaticAberrationIntensity;  // 0.0003 0 0.1 post
 uniform float gChromaticAberrationDistance;   // 0.45 0 1
 
 uniform float gVignetteIntensity;   // 1.34 0 3

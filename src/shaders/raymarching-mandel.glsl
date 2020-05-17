@@ -1,5 +1,5 @@
 const float INF = 1e+10;
-const float OFFSET = 0.1;
+const float OFFSET = 0.001;
 
 vec3 directionalLight;
 
@@ -20,8 +20,8 @@ uniform float gMandelboxRepeat;  // 10 1 100
 uniform float gEdgeEps;          // 0.0005 0.0001 0.01
 uniform float gEdgePower;        // 1 0.1 10
 uniform float gBaseColor;        // 0.5
-uniform float gRoughness;        // 0.1
-uniform float gMetallic;         // 0.4
+uniform float gRoughness;        // 0.14
+uniform float gMetallic;         // 0.49
 
 struct Ray {
     vec3 origin;
@@ -142,11 +142,11 @@ uniform float gEmissiveHueShiftBeat;  // 0 0 1
 uniform float gEmissiveHueShiftZ;     // 0 0 1
 uniform float gEmissiveHueShiftXY;    // 0 0 1
 
-uniform float gF0;                    // 0.95 0 1 lighting
-uniform float gCameraLightIntensity;  // 1 0 10
-uniform float gDirectionalLightX;     // -0.48666426339228763 -1 1
-uniform float gDirectionalLightY;     // 0.8111071056538127 -1 1
-uniform float gDirectionalLightZ;     // 0.3244428422615251 -1 1
+uniform float gF0;                 // 0.95 0 1 lighting
+uniform float gDirectionalLightX;  // -0.48666426339228763 -1 1
+uniform float gDirectionalLightY;  // 0.8111071056538127 -1 1
+uniform float gDirectionalLightZ;  // 0.3244428422615251 -1 1
+uniform float gAmbientIntensity;   // 0.08 0 1
 
 float fresnelSchlick(float f0, float cosTheta) { return f0 + (1.0 - f0) * pow((1.0 - cosTheta), 5.0); }
 
@@ -182,9 +182,9 @@ void intersectObjects(inout Intersection intersection, inout Ray ray) {
     }
 }
 
-uniform float gLodEps;    // 0.001 0 0.01 lod
-uniform float gLodLoop;   // 50 0 100
-uniform float gLodScale;  // 2 1 10
+uniform float gLodEps;    // 0.00001 0 0.01 lod
+uniform float gLodLoop;   // 45 0 100
+uniform float gLodScale;  // 3.1 1 10
 
 void intersectObjectsLod(inout Intersection intersection, inout Ray ray) {
     float d;
@@ -237,6 +237,37 @@ vec3 evalDirectionalLight(inout Intersection i, vec3 v, vec3 lightDir, vec3 radi
     float m = roughnessToExponent(i.roughness);
     vec3 specular = ref * pow(max(0.0, dot(n, h)), m) * (m + 2.0) / (8.0 * PI);
     return (diffuse + specular) * radiance * max(0.0, dot(l, n));
+}
+
+uniform float gAoLen;            // 0.0724 0 0.2
+uniform float gAoMul;            // 1 0 1
+uniform float gShadowIntensity;  // 0.17 0 1
+
+float calcAo(in vec3 p, in vec3 n) {
+    float k = 1.0, occ = 0.0;
+    for (int i = 0; i < 5; i++) {
+        float len = float(i + 1) * gAoLen;
+        float distance = map(n * len + p);
+        occ += (len - distance) * k;
+        k *= gAoMul;
+    }
+    return saturate(1.0 - occ);
+}
+
+float calcShadow(in vec3 p, in vec3 rd) {
+    float d;
+    float distance = OFFSET;
+    float bright = 1.0;
+    float shadowSharpness = 10.0;
+
+    for (int i = 0; i < 30; i++) {
+        d = mapLod(p + rd * distance);
+        if (d < gLodEps) return gShadowIntensity;
+        bright = min(bright, shadowSharpness * d / distance);
+        distance += d * gLodScale;
+    }
+
+    return gShadowIntensity + (1.0 - gShadowIntensity) * bright;
 }
 
 // https://www.shadertoy.com/view/WsfBDf
@@ -295,13 +326,11 @@ void calcRadiance(inout Intersection intersection, inout Ray ray, vec2 fragCoord
 
     if (intersection.hit) {
         intersection.color = intersection.emission;
-        intersection.color += evalPointLight(intersection, -ray.direction, camera.eye, gCameraLightIntensity * vec3(80.0, 80.0, 100.0));
 
         vec3 sunColor = vec3(2.0, 1.0, 1.0);
-        intersection.color += evalDirectionalLight(intersection, -ray.direction, directionalLight, sunColor);
+        intersection.color += gAmbientIntensity * sunColor * calcAo(intersection.position, intersection.normal);
+        intersection.color += evalDirectionalLight(intersection, -ray.direction, directionalLight, sunColor) * calcShadow(intersection.position, directionalLight);
 
-        // fog
-        // intersection.color = mix(intersection.color, vec3(0.01), 1.0 - exp(-0.01 * intersection.distance));
         intersection.color = applyFog(ray.origin, ray.direction, intersection.color, intersection.distance, fragCoord);
     } else {
         intersection.color = c_fogColorLit;
