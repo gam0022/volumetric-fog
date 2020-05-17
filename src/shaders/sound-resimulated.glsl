@@ -1799,6 +1799,46 @@ vec2 noisesidechain3(float beat, float time) {
     return ret;
 }
 
+vec2 hash22(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
+}
+
+//--------------------------------------------------------------------------
+vec2 Noise(in vec2 x) {
+    vec2 p = floor(x);
+    vec2 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    vec2 res = mix(mix(hash22(p + 0.0), hash22(p + vec2(1.0, 0.0)), f.x), mix(hash22(p + vec2(0.0, 1.0)), hash22(p + vec2(1.0, 1.0)), f.x), f.y);
+    return res - .5;
+}
+
+//--------------------------------------------------------------------------
+vec2 FBM(vec2 p) {
+    vec2 f;
+    f = 0.5000 * Noise(p);
+    p = p * 2.32;
+    f += 0.2500 * Noise(p);
+    p = p * 2.23;
+    f += 0.1250 * Noise(p);
+    p = p * 2.31;
+    f += 0.0625 * Noise(p);
+    p = p * 2.28;
+    f += 0.03125 * Noise(p);
+    return f;
+}
+
+//--------------------------------------------------------------------------
+vec2 Wind(float n) {
+    vec2 pos = vec2(n * (162.017331), n * (132.066927));
+    vec2 vol = Noise(vec2(n * 23.131, -n * 42.13254)) * 1.0 + 1.0;
+
+    vec2 noise = vec2(FBM(pos * 33.313)) * vol.x * .5 + vec2(FBM(pos * 4.519)) * vol.y;
+
+    return noise;
+}
+
 vec2 mainSound(float time) {
     //編集用に時間を途中からすすめる
     // time += 0.0;
@@ -1877,6 +1917,13 @@ vec2 mainSound(float time) {
     ret += vec2(0.2) * snare1(beat, time);
     ret += vec2(0.1) * snare2(beat, time);
     ret += vec2(0.37, 0.3) * sidechain2 * noisefeed(beat, time);
+
+    ret *= 0.0;
+
+    // Wind
+    vec2 audio = Wind(time * .1) * 6.0;
+    // return clamp(audio, -1.0, 1.0) * (smoothstep(0.0, 2.0, time) * smoothstep(180.0, 175.0, time));
+    ret += clamp(audio, -1.0, 1.0) * (smoothstep(0.0, 2.0, time) * smoothstep(180.0, 175.0, time));
 
     return clamp(ret, -1.0, 1.0);
 }
