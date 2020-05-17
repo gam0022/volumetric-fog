@@ -3,7 +3,6 @@ const float OFFSET = 0.001;
 
 vec3 directionalLight;
 
-uniform float gSceneEps;  // 0.002 0.00001 0.01
 #define SCENE_MANDEL 0.0
 #define SCENE_UNIVERSE 1.0
 
@@ -15,7 +14,8 @@ uniform float gCameraTargetY;  // 3.4515422110479044 -100 100
 uniform float gCameraTargetZ;  // -0.21633410393024527 -100 100
 uniform float gCameraFov;      // 37.88049605411499 0 180
 
-uniform float gMandelboxScale;   // 2.7 1 5 mandel
+uniform float gSceneEps;         // 0.002 0.00001 0.01 scene
+uniform float gMandelboxScale;   // 2.7 1 5
 uniform float gMandelboxRepeat;  // 10 1 100
 uniform float gEdgeEps;          // 0.0005 0.0001 0.01
 uniform float gEdgePower;        // 1 0.1 10
