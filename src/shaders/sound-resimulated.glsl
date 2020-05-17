@@ -523,7 +523,7 @@ vec2 kick1(float beat, float time) {
     // ノート番号0は休符
     int[KICK1_BEAT_LEN * NOTE_DIV * KICK1_DEV_PAT] notes = int[](
         // 展開0
-        F(1), F(0), F(0), E(0, 1), F(1), F(0), F(0), F(1),
+        F(1), E(1, 0), F(0), E(0, 1), F(1), E(1, 0), F(0), F(1),
 
         // 展開1
         F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1),
