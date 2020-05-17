@@ -148,7 +148,6 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
 
   new Timeline(beat % 128)
     .then(16, (t) => {
-      chromatiq.uniforms.gTonemapExposure = 1;
       camera = new Vector3(-4.379722982532216 - 0.1 * t, 2.7148724854688524, -0.28991836612215305).add(Vector3.fbm(t).scale(0.01));
       target = new Vector3(-0.5453302285259057, 2.2577012315588685, 0.49141768491439874);
       chromatiq.uniforms.gCameraFov = 44;
@@ -160,17 +159,55 @@ export const animateUniforms = (time: number, debugCamera: boolean, debugDisable
       chromatiq.uniforms.gFogDensity = 0.06;
 
       chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
-      chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
+      chromatiq.uniforms.gSceneEps = 0.0007;
     })
     .then(16, (t) => {
-      chromatiq.uniforms.gTonemapExposure = 1;
-
-      camera = new Vector3(-4.56199979681654, 3.6488348437402, -0.718886105195862).add(Vector3.fbm(t).scale(0.01));
-      target = new Vector3(-0.41268738441838876, 3.3606772954220783, 0.2967424981258505);
+      camera = new Vector3(-3.970204113998252 + 0.1 * t, 3.7077363734113277, -0.5740320756471025).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(3.5575167295798633, -0.24705907798924942, 0.870774573772953).add(camera);
       chromatiq.uniforms.gCameraFov = 44;
 
+      chromatiq.uniforms.gDirectionalLightX = 0.2 + t * 0.05;
+      chromatiq.uniforms.gDirectionalLightY = 0.59;
+      chromatiq.uniforms.gDirectionalLightZ = 0.32;
+
       chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
-      chromatiq.uniforms.gSceneEps = 0.0007057137501171619;
+      chromatiq.uniforms.gSceneEps = 0.0007;
+    })
+    .then(16, (t) => {
+      camera = new Vector3(-7.474261059545553 + 0.4 * t, -3.754708154511634, -7.121941019611203).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(0.8978279766196682, 3.1116274369894934, -0.6642480096822594);
+      chromatiq.uniforms.gCameraFov = 38.862068965517246;
+
+      chromatiq.uniforms.gDirectionalLightX = 0.4;
+      chromatiq.uniforms.gDirectionalLightY = 0.59;
+      chromatiq.uniforms.gDirectionalLightZ = 0.32;
+
+      chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
+      chromatiq.uniforms.gSceneEps = 0.0007;
+    })
+    .then(16, (t) => {
+      camera = new Vector3(-10.613076469893596 + 0.5 * t, -0.7331309470953928, 2.6174954709130063).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(0.8978279766196682, 3.1116274369894934, -0.6642480096822594);
+      chromatiq.uniforms.gCameraFov = 38.862068965517246;
+
+      chromatiq.uniforms.gDirectionalLightX = 0.2 + t * 0.05;
+      chromatiq.uniforms.gDirectionalLightY = 0.59;
+      chromatiq.uniforms.gDirectionalLightZ = 0.32;
+
+      chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
+      chromatiq.uniforms.gSceneEps = 0.0007;
+    })
+    .then(16, (t) => {
+      camera = new Vector3(3.748211770294877, 0.18051808427255622 + 0.2 * t, -0.6554018804796462).add(Vector3.fbm(t).scale(0.01));
+      target = new Vector3(2.279035864006533, 1.6282643376530757, -0.1535619801053861);
+      chromatiq.uniforms.gCameraFov = 64.71656749138741;
+
+      chromatiq.uniforms.gDirectionalLightX = 0.2 + t * 0.05;
+      chromatiq.uniforms.gDirectionalLightY = 0.59;
+      chromatiq.uniforms.gDirectionalLightZ = 0.32;
+
+      chromatiq.uniforms.gMandelboxScale = 2.88621239103946;
+      chromatiq.uniforms.gSceneEps = 0.0007;
     })
     .over(() => {
       // デモ終了後
