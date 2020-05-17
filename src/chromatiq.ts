@@ -467,7 +467,7 @@ export class Chromatiq {
           this.audioSource.buffer = audioBuffer;
         }
 
-        // this.audioSource.loop = false;
+        this.audioSource.loop = true;
         this.audioSource.connect(audio.destination);
       };
 
