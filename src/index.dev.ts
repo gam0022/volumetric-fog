@@ -23,7 +23,7 @@ window.addEventListener(
       debugDisableReset: false,
       resolution: "1920x1080",
       timeMode: "beat",
-      bpm: 140,
+      bpm: 128,
     };
 
     // HTMLElements
@@ -211,7 +211,35 @@ window.addEventListener(
         const waveBlob = bufferToWave(chromatiq.audioSource.buffer, sampleLength);
         saveAs(waveBlob, "chromatiq.wav");
       },
+      copyCamera: (): void => {
+        const text = `camera = new Vector3(${camera.position.x}, ${camera.position.y}, ${camera.position.z}).add(Vector3.fbm(t).scale(0.01));
+target = new Vector3(${controls.target.x}, ${controls.target.y}, ${controls.target.z});
+chromatiq.uniforms.gCameraFov = ${chromatiq.uniforms.gCameraFov};`;
+        navigator.clipboard.writeText(text).then(
+          function () {
+            console.log("copied to clipboard");
+          },
+          function () {
+            console.log("failed to copy");
+          }
+        );
+      },
+      copyCamera2: (): void => {
+        const text = `camera = new Vector3(${camera.position.x}, ${camera.position.y}, ${camera.position.z}).add(Vector3.fbm(t).scale(0.01));
+target = new Vector3(${controls.target.x - camera.position.x}, ${controls.target.y - camera.position.y}, ${controls.target.z - camera.position.z}).add(camera);
+chromatiq.uniforms.gCameraFov = ${chromatiq.uniforms.gCameraFov};`;
+        navigator.clipboard.writeText(text).then(
+          function () {
+            console.log("copied to clipboard");
+          },
+          function () {
+            console.log("failed to copy");
+          }
+        );
+      },
     };
+    debugFolder.add(saevFunctions, "copyCamera");
+    debugFolder.add(saevFunctions, "copyCamera2");
     miscFolder.add(saevFunctions, "saveImage");
     miscFolder.add(saevFunctions, "saveImageSequence");
     miscFolder.add(saevFunctions, "saveSound");

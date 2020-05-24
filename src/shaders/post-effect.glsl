@@ -1,11 +1,11 @@
-uniform float gChromaticAberrationIntensity;  // 0.03 0 0.1 post
+uniform float gChromaticAberrationIntensity;  // 0.0003 0 0.1 post
 uniform float gChromaticAberrationDistance;   // 0.45 0 1
 
 uniform float gVignetteIntensity;   // 1.34 0 3
 uniform float gVignetteSmoothness;  // 2 0 5
 uniform float gVignetteRoundness;   // 1 0 1
 
-uniform float gTonemapExposure;  // 0.1 0.0 2
+uniform float gTonemapExposure;  // 1 0.0 2
 uniform float gFlash;            // 0 0 1
 uniform float gFlashSpeed;       // 0 0 60
 uniform float gBlend;            // 0 -1 1
