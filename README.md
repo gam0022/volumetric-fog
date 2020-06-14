@@ -1,25 +1,20 @@
-# RE: SIMULATED by gam0022 & sadakkey
+# webgl volumetric fog
 
-RE: SIMULATED by [@gam0022](https://twitter.com/gam0022) (Graphics) & [@sadakkey](https://twitter.com/sadakkey) (Music)
+A WebGL 64KB Intro for [#S1C002](https://neort.io/tag/bqr6ous3p9f48fkis91g), [#Shader1weekCompo](https://neort.io/tag/br0go2s3p9f194rkgmj0)
 
-A WebGL 64KB Intro
+Imspired by [Ray Marching Fog With Blue Noise](https://blog.demofox.org/2020/05/10/ray-marching-fog-with-blue-noise/) by @Atrix256
 
-1st Place [PC 64K Intro](https://2020.revision-party.net/competitions/pc-competitions) at [Revision 2020](https://2020.revision-party.net/start)
-
-![resimulated-collage.jpg](resimulated-collage.jpg)
+![volumetric-fog.jpg](volumetric-fog.jpg)
 
 ## Run
 
 Run in browser on your PC! (only tested latest Chrome)
 
-- [64KB HTML version](https://gam0022.net/webgl/64k-intro_resimulated.html)
-- [NEORT version](https://neort.io/art/bqa4pgs3p9f6qoqnmujg)
+- [NEORT version](https://neort.io/art/br0go2k3p9f194rkgmgg)
 
 ## Links
 
-- [:tv: YouTube](https://youtu.be/tirAdWbceak)
-- [:speech_balloon: Pouet](https://www.pouet.net/prod.php?which=85260)
-- [:bird: Twitter](https://twitter.com/gam0022/status/1249658268319768576)
+- [:bird: Twitter](https://twitter.com/gam0022/status/1261967964955279360/)
 
 ## Development
 
@@ -31,8 +26,8 @@ Run in browser on your PC! (only tested latest Chrome)
 ### 1: Get Started
 
 ```sh
-git clone git@github.com:gam0022/resimulated.git
-cd resimulated
+git clone git@github.com:gam0022/volumetric-fog.git
+cd volumetric-fog
 
 # init
 npm install
@@ -40,7 +35,7 @@ npm install
 # Start Web server with hot-reload / UI for debug
 npm run start
 
-# Generate a dist\resimulated.html
+# Generate a dist\volumetric-fog.html
 npm run build
 ```
 
