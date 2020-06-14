@@ -43,7 +43,7 @@ npm run build
 
 A WebGL engine developed for PC 64K Intro aimed at minimizing the file size.
 
-Originally made it for [resimulated](https://github.com/gam0022/resimulated).
+Originally made it for [RE: SIMULATED by gam0022 & sadakkey](https://github.com/gam0022/resimulated).
 
 Written in a single TypeScript, but it's still in development. ([source code](https://github.com/gam0022/resimulated/blob/master/src/chromatiq.ts))
 
