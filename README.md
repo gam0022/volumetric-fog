@@ -14,6 +14,7 @@ Run in browser on your PC! (only tested latest Chrome)
 
 ## Links
 
+- [:tv: YouTube](https://youtu.be/8BEFyZzk6jI)
 - [:bird: Twitter](https://twitter.com/gam0022/status/1261967964955279360/)
 
 ## Development
