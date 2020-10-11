@@ -9,9 +9,13 @@
     "build": "node node_modules/clean-css-cli/bin/cleancss -o dist/style.prod.min.css src/style.prod.css && webpack --config webpack.prod.js && ruby pnginator.rb ./dist/bundle.js ./dist/volumetric-fog.html",
     "build-neort": "webpack --config webpack.neort.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "webgl2",
+    "webgl",
+    "typescript"
+  ],
+  "author": "gam0022",
+  "license": "MIT",
   "devDependencies": {
     "@types/dat-gui": "^0.6.3",
     "@types/dat.gui": "^0.7.5",
